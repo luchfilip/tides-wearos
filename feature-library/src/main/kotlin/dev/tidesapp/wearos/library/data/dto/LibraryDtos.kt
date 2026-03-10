@@ -1,0 +1,145 @@
+package dev.tidesapp.wearos.library.data.dto
+
+import kotlinx.serialization.Serializable
+
+// =================================================================
+// Collection DTOs — cursor-based pagination (/v2/my-collection/*)
+// =================================================================
+
+@Serializable
+data class CollectionAlbumsResponseDto(
+    val lastModifiedAt: String? = null,
+    val items: List<AlbumDataDto> = emptyList(),
+    val totalNumberOfItems: Int = 0,
+    val cursor: String? = null,
+)
+
+@Serializable
+data class CollectionPlaylistsResponseDto(
+    val lastModifiedAt: String? = null,
+    val items: List<PlaylistDataDto> = emptyList(),
+    val totalNumberOfItems: Int = 0,
+    val cursor: String? = null,
+)
+
+// =================================================================
+// v1 track list DTO — offset/limit pagination (/v1/albums/{id}/tracks, /v1/playlists/{id}/tracks)
+// =================================================================
+
+@Serializable
+data class V1TrackListResponseDto(
+    val limit: Int = 0,
+    val offset: Int = 0,
+    val totalNumberOfItems: Int = 0,
+    val items: List<TrackDataDto> = emptyList(),
+)
+
+// =================================================================
+// Real API data DTOs — matching actual Tidal API response schemas
+// =================================================================
+
+@Serializable
+data class AlbumDataDto(
+    val id: Long = 0,
+    val title: String = "",
+    val artists: List<ArtistBriefDto> = emptyList(),
+    val cover: String? = null,
+    val vibrantColor: String? = null,
+    val releaseDate: String? = null,
+    val numberOfTracks: Int = 0,
+    val duration: Int = 0,
+    val explicit: Boolean = false,
+)
+
+@Serializable
+data class TrackDataDto(
+    val id: Long = 0,
+    val title: String = "",
+    val duration: Int = 0,
+    val trackNumber: Int = 0,
+    val volumeNumber: Int = 0,
+    val explicit: Boolean = false,
+    val artist: ArtistBriefDto? = null,
+    val artists: List<ArtistBriefDto> = emptyList(),
+    val album: TrackAlbumDto? = null,
+)
+
+@Serializable
+data class TrackAlbumDto(
+    val id: Long = 0,
+    val title: String = "",
+    val cover: String? = null,
+    val releaseDate: String? = null,
+)
+
+@Serializable
+data class PlaylistDataDto(
+    val uuid: String = "",
+    val title: String = "",
+    val description: String? = null,
+    val image: String? = null,
+    val squareImage: String? = null,
+    val numberOfTracks: Int = 0,
+    val duration: Int = 0,
+    val creator: PlaylistCreatorDto? = null,
+    val type: String? = null,
+)
+
+@Serializable
+data class PlaylistCreatorDto(
+    val id: Long = 0,
+    val name: String? = null,
+    val type: String? = null,
+)
+
+@Serializable
+data class ArtistBriefDto(
+    val id: Long = 0,
+    val name: String = "",
+    val picture: String? = null,
+    val main: Boolean? = null,
+)
+
+// =================================================================
+// Search DTOs — offset/limit pagination (/v2/search)
+// =================================================================
+
+@Serializable
+data class SearchResponseDto(
+    val albums: SearchAlbumsSection? = null,
+    val tracks: SearchTracksSection? = null,
+    val playlists: SearchPlaylistsSection? = null,
+    val artists: SearchArtistsSection? = null,
+)
+
+@Serializable
+data class SearchAlbumsSection(
+    val limit: Int = 0,
+    val offset: Int = 0,
+    val totalNumberOfItems: Int = 0,
+    val items: List<AlbumDataDto> = emptyList(),
+)
+
+@Serializable
+data class SearchTracksSection(
+    val limit: Int = 0,
+    val offset: Int = 0,
+    val totalNumberOfItems: Int = 0,
+    val items: List<TrackDataDto> = emptyList(),
+)
+
+@Serializable
+data class SearchPlaylistsSection(
+    val limit: Int = 0,
+    val offset: Int = 0,
+    val totalNumberOfItems: Int = 0,
+    val items: List<PlaylistDataDto> = emptyList(),
+)
+
+@Serializable
+data class SearchArtistsSection(
+    val limit: Int = 0,
+    val offset: Int = 0,
+    val totalNumberOfItems: Int = 0,
+    val items: List<ArtistBriefDto> = emptyList(),
+)
