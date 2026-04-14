@@ -12,6 +12,7 @@ activityCompose = "1.12.3"
 
 # Wear OS
 wearCompose = "1.4.0"
+wearInput = "1.2.0-alpha02"
 playServicesWearable = "19.0.0"
 horologist = "0.6.22"
 
@@ -70,6 +71,7 @@ wear-compose-material = { group = "androidx.wear.compose", name = "compose-mater
 wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "wearCompose" }
 wear-compose-navigation = { group = "androidx.wear.compose", name = "compose-navigation", version.ref = "wearCompose" }
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
+androidx-wear-input = { group = "androidx.wear", name = "wear-input", version.ref = "wearInput" }
 
 # Horologist
 horologist-compose-layout = { module = "com.google.android.horologist:horologist-compose-layout", version.ref = "horologist" }

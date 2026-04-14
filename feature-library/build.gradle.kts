@@ -23,6 +23,15 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    testOptions {
+        unitTests {
+            // Allow JVM unit tests to exercise classes that lightly touch
+            // android.* framework stubs (e.g. Intent / RemoteInput) by
+            // returning defaults instead of throwing "Method ... not mocked".
+            isReturnDefaultValues = true
+        }
+    }
 }
 
 kotlin {
@@ -43,6 +52,8 @@ dependencies {
 
     implementation(libs.wear.compose.material)
     implementation(libs.wear.compose.foundation)
+    implementation(libs.androidx.wear.input)
+    implementation(libs.androidx.activity.compose)
 
     implementation(libs.horologist.compose.layout)
 

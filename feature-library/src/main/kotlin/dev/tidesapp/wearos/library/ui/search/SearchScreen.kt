@@ -1,5 +1,9 @@
 package dev.tidesapp.wearos.library.ui.search
 
+import android.app.RemoteInput
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -22,6 +26,8 @@ import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
+import androidx.wear.input.RemoteInputIntentHelper
+import androidx.wear.input.wearableExtender
 import coil3.compose.AsyncImage
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
@@ -34,6 +40,21 @@ import dev.tidesapp.wearos.core.domain.model.TrackItem
 import dev.tidesapp.wearos.core.ui.components.ErrorScreen
 import dev.tidesapp.wearos.core.ui.components.LoadingScreen
 import kotlinx.collections.immutable.ImmutableList
+
+internal const val REMOTE_INPUT_QUERY_KEY = "query_key"
+
+/**
+ * Extracts the trimmed search query from a RemoteInput activity result intent.
+ * Returns `null` when the intent is null, has no remote input results, or the
+ * query is blank after trimming.
+ */
+internal fun extractSearchQuery(intent: Intent?): String? {
+    if (intent == null) return null
+    val results = RemoteInput.getResultsFromIntent(intent) ?: return null
+    val raw = results.getCharSequence(REMOTE_INPUT_QUERY_KEY)?.toString() ?: return null
+    val trimmed = raw.trim()
+    return trimmed.ifBlank { null }
+}
 
 @Composable
 fun SearchScreen(
@@ -73,6 +94,27 @@ fun SearchContent(
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
+    val remoteInputIntent = remember {
+        val remoteInputs = listOf(
+            RemoteInput.Builder(REMOTE_INPUT_QUERY_KEY)
+                .setLabel("Search TIDAL")
+                .wearableExtender { setEmojisAllowed(false) }
+                .build(),
+        )
+        RemoteInputIntentHelper.createActionRemoteInputIntent().apply {
+            RemoteInputIntentHelper.putRemoteInputsExtra(this, remoteInputs)
+        }
+    }
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        val query = extractSearchQuery(result.data)
+        if (!query.isNullOrBlank()) {
+            searchQuery = query
+            onEvent(SearchUiEvent.Search(query))
+        }
+    }
+
     val columnState = rememberResponsiveColumnState(
         contentPadding = ScalingLazyColumnDefaults.padding(
             first = ScalingLazyColumnDefaults.ItemType.Text,
@@ -93,10 +135,7 @@ fun SearchContent(
         }
         item {
             CompactChip(
-                onClick = {
-                    // TODO: Launch voice input or text input dialog
-                    // For now, this is a placeholder for triggering search
-                },
+                onClick = { launcher.launch(remoteInputIntent) },
                 label = {
                     Text(
                         text = if (searchQuery.isBlank()) "Tap to search..." else searchQuery,
