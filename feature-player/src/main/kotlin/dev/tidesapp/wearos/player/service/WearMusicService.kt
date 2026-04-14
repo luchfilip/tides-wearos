@@ -4,8 +4,10 @@ import android.content.Intent
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import dev.tidesapp.wearos.player.R
 import dev.tidesapp.wearos.player.data.PlayerRepositoryImpl
 import dev.tidesapp.wearos.player.playback.MusicServiceController
 import dagger.hilt.EntryPoint
@@ -56,6 +58,14 @@ class WearMusicService : MediaSessionService() {
 
         mediaSession = MediaSession.Builder(this, exoPlayer).build()
 
+        setMediaNotificationProvider(
+            DefaultMediaNotificationProvider.Builder(this)
+                .setChannelId(NOTIFICATION_CHANNEL_ID)
+                .setChannelName(R.string.player_notification_channel_name)
+                .setNotificationId(NOTIFICATION_ID)
+                .build(),
+        )
+
         serviceController = MusicServiceController(serviceScope)
         serviceController.setStopCallback { stopSelf() }
     }
@@ -80,5 +90,10 @@ class WearMusicService : MediaSessionService() {
         player = null
         serviceScope.cancel()
         super.onDestroy()
+    }
+
+    private companion object {
+        const val NOTIFICATION_CHANNEL_ID = "dev.tidesapp.wearos.player.playback"
+        const val NOTIFICATION_ID = 1001
     }
 }
