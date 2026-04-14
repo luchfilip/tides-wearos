@@ -27,8 +27,8 @@ fun HomeScreen(
     onNavigateToMix: (mixId: String, title: String, subTitle: String?, imageUrl: String?) -> Unit,
     onNavigateToViewAll: (viewAllPath: String, title: String) -> Unit,
     onNavigateToNowPlaying: () -> Unit,
+    onNavigateToLibrary: () -> Unit,
     onNavigateToSearch: () -> Unit,
-    onNavigateToSettings: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -37,8 +37,8 @@ fun HomeScreen(
         uiState = uiState,
         onEvent = viewModel::onEvent,
         onNavigateToNowPlaying = onNavigateToNowPlaying,
+        onNavigateToLibrary = onNavigateToLibrary,
         onNavigateToSearch = onNavigateToSearch,
-        onNavigateToSettings = onNavigateToSettings,
     )
 
     LaunchedEffect(Unit) {
@@ -70,8 +70,8 @@ fun HomeContent(
     uiState: HomeUiState,
     onEvent: (HomeUiEvent) -> Unit,
     onNavigateToNowPlaying: () -> Unit,
+    onNavigateToLibrary: () -> Unit,
     onNavigateToSearch: () -> Unit,
-    onNavigateToSettings: () -> Unit,
 ) {
     when (uiState) {
         HomeUiState.Initial,
@@ -81,8 +81,8 @@ fun HomeContent(
             feedSections = uiState.feedSections,
             onEvent = onEvent,
             onNavigateToNowPlaying = onNavigateToNowPlaying,
+            onNavigateToLibrary = onNavigateToLibrary,
             onNavigateToSearch = onNavigateToSearch,
-            onNavigateToSettings = onNavigateToSettings,
         )
 
         is HomeUiState.Error -> ErrorScreen(
@@ -97,12 +97,12 @@ private fun HomeList(
     feedSections: ImmutableList<HomeFeedSection>,
     onEvent: (HomeUiEvent) -> Unit,
     onNavigateToNowPlaying: () -> Unit,
+    onNavigateToLibrary: () -> Unit,
     onNavigateToSearch: () -> Unit,
-    onNavigateToSettings: () -> Unit,
 ) {
     val columnState = rememberResponsiveColumnState(
         contentPadding = ScalingLazyColumnDefaults.padding(
-            first = ScalingLazyColumnDefaults.ItemType.Text,
+            first = ScalingLazyColumnDefaults.ItemType.Chip,
             last = ScalingLazyColumnDefaults.ItemType.Chip,
         ),
     )
@@ -115,6 +115,20 @@ private fun HomeList(
             TidesChip(
                 label = "Now Playing",
                 onClick = onNavigateToNowPlaying,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        item {
+            TidesChip(
+                label = "Library",
+                onClick = onNavigateToLibrary,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        item {
+            TidesChip(
+                label = "Search",
+                onClick = onNavigateToSearch,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -161,26 +175,5 @@ private fun HomeList(
             }
         }
 
-        item {
-            Text(
-                text = "More",
-                style = MaterialTheme.typography.title3,
-                color = MaterialTheme.colors.primary,
-            )
-        }
-        item {
-            TidesChip(
-                label = "Search",
-                onClick = onNavigateToSearch,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-        item {
-            TidesChip(
-                label = "Settings",
-                onClick = onNavigateToSettings,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
     }
 }

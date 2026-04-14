@@ -15,10 +15,13 @@ import dev.tidesapp.wearos.auth.ui.login.LoginScreen
 import dev.tidesapp.wearos.library.ui.albumdetail.AlbumDetailScreen
 import dev.tidesapp.wearos.library.ui.albums.AlbumsScreen
 import dev.tidesapp.wearos.library.ui.home.HomeScreen
+import dev.tidesapp.wearos.library.ui.library.LibraryHubScreen
 import dev.tidesapp.wearos.library.ui.mixdetail.MixDetailScreen
 import dev.tidesapp.wearos.library.ui.playlistdetail.PlaylistDetailScreen
 import dev.tidesapp.wearos.library.ui.playlists.PlaylistsScreen
+import dev.tidesapp.wearos.library.ui.recent.RecentScreen
 import dev.tidesapp.wearos.library.ui.search.SearchScreen
+import dev.tidesapp.wearos.library.ui.tracks.TracksScreen
 import dev.tidesapp.wearos.library.ui.viewall.ViewAllScreen
 import dev.tidesapp.wearos.player.ui.nowplaying.NowPlayingScreen
 import dev.tidesapp.wearos.settings.ui.settings.SettingsScreen
@@ -27,6 +30,9 @@ import kotlinx.serialization.Serializable
 // Type-safe route objects (kept for future Wear Compose Navigation type-safe support)
 @Serializable object LoginRoute
 @Serializable object LibraryHomeRoute
+@Serializable object LibraryHubRoute
+@Serializable object TracksRoute
+@Serializable object RecentRoute
 @Serializable data class AlbumDetailRoute(val albumId: String)
 @Serializable data class PlaylistDetailRoute(val playlistId: String)
 @Serializable data class MixDetailRoute(val mixId: String)
@@ -38,8 +44,11 @@ import kotlinx.serialization.Serializable
 object Routes {
     const val LOGIN = "login"
     const val LIBRARY_HOME = "library_home"
+    const val LIBRARY_HUB = "library_hub"
     const val ALBUMS = "albums"
     const val PLAYLISTS = "playlists"
+    const val TRACKS = "tracks"
+    const val RECENT = "recent"
     const val ALBUM_DETAIL = "album_detail/{albumId}"
     const val PLAYLIST_DETAIL = "playlist_detail/{playlistId}"
     const val MIX_DETAIL = "mix_detail/{mixId}?title={title}&subTitle={subTitle}&imageUrl={imageUrl}"
@@ -123,11 +132,47 @@ fun TidesNavGraph() {
                 onNavigateToNowPlaying = {
                     navController.navigate(Routes.NOW_PLAYING)
                 },
+                onNavigateToLibrary = {
+                    navController.navigate(Routes.LIBRARY_HUB)
+                },
                 onNavigateToSearch = {
                     navController.navigate(Routes.SEARCH)
                 },
+            )
+        }
+
+        composable(Routes.LIBRARY_HUB) {
+            LibraryHubScreen(
+                onNavigateToPlaylists = {
+                    navController.navigate(Routes.PLAYLISTS)
+                },
+                onNavigateToAlbums = {
+                    navController.navigate(Routes.ALBUMS)
+                },
+                onNavigateToTracks = {
+                    navController.navigate(Routes.TRACKS)
+                },
+                onNavigateToRecent = {
+                    navController.navigate(Routes.RECENT)
+                },
                 onNavigateToSettings = {
                     navController.navigate(Routes.SETTINGS)
+                },
+            )
+        }
+
+        composable(Routes.TRACKS) {
+            TracksScreen(
+                onNavigateToNowPlaying = {
+                    navController.navigate(Routes.NOW_PLAYING)
+                },
+            )
+        }
+
+        composable(Routes.RECENT) {
+            RecentScreen(
+                onNavigateToNowPlaying = {
+                    navController.navigate(Routes.NOW_PLAYING)
                 },
             )
         }
