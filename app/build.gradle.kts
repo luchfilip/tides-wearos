@@ -17,10 +17,29 @@ android {
         versionCode = 1
         versionName = "1.0.0"
 
-        buildConfigField("String", "TIDAL_CLIENT_ID", "\"${project.property("TIDAL_CLIENT_ID")}\"")
-        buildConfigField("String", "TIDAL_CLIENT_SECRET", "\"${project.property("TIDAL_CLIENT_SECRET")}\"")
-        buildConfigField("String", "TIDAL_API_BASE_URL", "\"${project.property("TIDAL_API_BASE_URL")}\"")
-        buildConfigField("String", "TIDAL_AUTH_BASE_URL", "\"${project.property("TIDAL_AUTH_BASE_URL")}\"")
+        // Use findProperty(...) rather than property(...) so fresh clones without a
+        // populated gradle.properties still build (the SDK will fail at runtime on
+        // empty credentials, which is a clearer failure mode than a Gradle crash).
+        buildConfigField(
+            "String",
+            "TIDAL_CLIENT_ID",
+            "\"${project.findProperty("TIDAL_CLIENT_ID")?.toString().orEmpty()}\"",
+        )
+        buildConfigField(
+            "String",
+            "TIDAL_CLIENT_SECRET",
+            "\"${project.findProperty("TIDAL_CLIENT_SECRET")?.toString().orEmpty()}\"",
+        )
+        buildConfigField(
+            "String",
+            "TIDAL_API_BASE_URL",
+            "\"${project.findProperty("TIDAL_API_BASE_URL")?.toString() ?: "https://api.tidal.com/"}\"",
+        )
+        buildConfigField(
+            "String",
+            "TIDAL_AUTH_BASE_URL",
+            "\"${project.findProperty("TIDAL_AUTH_BASE_URL")?.toString() ?: "https://auth.tidal.com/v1/"}\"",
+        )
         buildConfigField(
             "String",
             "TIDAL_CLIENT_VERSION",

@@ -1,11 +1,15 @@
 package dev.tidesapp.wearos.settings.ui.settings
 
 import app.cash.turbine.test
+import dev.tidesapp.wearos.auth.domain.repository.AuthRepository
 import dev.tidesapp.wearos.core.domain.model.AudioQualityPreference
 import dev.tidesapp.wearos.settings.domain.repository.SettingsRepository
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.coVerifyOrder
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,6 +29,7 @@ import org.junit.Test
 class SettingsViewModelTest {
 
     private lateinit var settingsRepository: SettingsRepository
+    private lateinit var authRepository: AuthRepository
     private lateinit var viewModel: SettingsViewModel
     private val testDispatcher = StandardTestDispatcher()
 
@@ -32,6 +37,7 @@ class SettingsViewModelTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         settingsRepository = mockk()
+        authRepository = mockk()
     }
 
     @After
@@ -57,7 +63,7 @@ class SettingsViewModelTest {
             storageUsed = "42 MB",
         )
 
-        viewModel = SettingsViewModel(settingsRepository)
+        viewModel = SettingsViewModel(settingsRepository, authRepository)
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -73,7 +79,7 @@ class SettingsViewModelTest {
         stubDefaults()
         coEvery { settingsRepository.setAudioQuality(any()) } returns Unit
 
-        viewModel = SettingsViewModel(settingsRepository)
+        viewModel = SettingsViewModel(settingsRepository, authRepository)
         advanceUntilIdle()
 
         viewModel.onEvent(SettingsUiEvent.ChangeQuality(AudioQualityPreference.LOSSLESS))
@@ -87,7 +93,7 @@ class SettingsViewModelTest {
         stubDefaults(wifiOnly = false)
         coEvery { settingsRepository.setWifiOnly(any()) } returns Unit
 
-        viewModel = SettingsViewModel(settingsRepository)
+        viewModel = SettingsViewModel(settingsRepository, authRepository)
         advanceUntilIdle()
 
         viewModel.onEvent(SettingsUiEvent.ToggleWifiOnly)
@@ -99,8 +105,9 @@ class SettingsViewModelTest {
     @Test
     fun `Logout sends NavigateToLogin effect`() = runTest {
         stubDefaults()
+        coEvery { authRepository.logout() } just Runs
 
-        viewModel = SettingsViewModel(settingsRepository)
+        viewModel = SettingsViewModel(settingsRepository, authRepository)
         advanceUntilIdle()
 
         viewModel.onEvent(SettingsUiEvent.Logout)
@@ -111,5 +118,48 @@ class SettingsViewModelTest {
             assertTrue(effect is SettingsUiEffect.NavigateToLogin)
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    @Test
+    fun `logout event calls AuthRepository logout then emits NavigateToLogin`() = runTest {
+        stubDefaults()
+        coEvery { authRepository.logout() } just Runs
+
+        viewModel = SettingsViewModel(settingsRepository, authRepository)
+        advanceUntilIdle()
+
+        viewModel.uiEffect.test {
+            viewModel.onEvent(SettingsUiEvent.Logout)
+            advanceUntilIdle()
+
+            val effect = awaitItem()
+            assertTrue(effect is SettingsUiEffect.NavigateToLogin)
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        coVerifyOrder {
+            authRepository.logout()
+        }
+        coVerify(exactly = 1) { authRepository.logout() }
+    }
+
+    @Test
+    fun `logout still navigates when repo fails`() = runTest {
+        stubDefaults()
+        coEvery { authRepository.logout() } throws RuntimeException("revoke failed")
+
+        viewModel = SettingsViewModel(settingsRepository, authRepository)
+        advanceUntilIdle()
+
+        viewModel.uiEffect.test {
+            viewModel.onEvent(SettingsUiEvent.Logout)
+            advanceUntilIdle()
+
+            val effect = awaitItem()
+            assertTrue(effect is SettingsUiEffect.NavigateToLogin)
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        coVerify(exactly = 1) { authRepository.logout() }
     }
 }

@@ -119,14 +119,14 @@ class LoginViewModelTest {
 
         // Run all currently scheduled work (initializeDeviceLogin completes immediately,
         // finalizeDeviceLogin starts but hits delay(10_000) and suspends)
-        testScheduler.runCurrent()
+        testDispatcher.scheduler.runCurrent()
 
         // State should be ShowingCode — finalizeDeviceLogin is still suspended
         assertTrue(viewModel.uiState.value is LoginUiState.ShowingCode)
 
         // Send duplicate event while in ShowingCode state — should be ignored
         viewModel.onEvent(LoginUiEvent.StartLogin)
-        testScheduler.runCurrent()
+        testDispatcher.scheduler.runCurrent()
 
         coVerify(exactly = 1) { authRepository.initializeDeviceLogin() }
     }

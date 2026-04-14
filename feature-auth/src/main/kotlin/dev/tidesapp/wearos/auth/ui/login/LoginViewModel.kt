@@ -21,7 +21,6 @@ sealed interface LoginUiState {
         val userCode: String,
         val verificationUri: String,
     ) : LoginUiState
-    data object Polling : LoginUiState
     data object Success : LoginUiState
     data class Error(val message: String) : LoginUiState
 }
@@ -61,7 +60,6 @@ class LoginViewModel @Inject constructor(
             when (_uiState.value) {
                 is LoginUiState.Loading,
                 is LoginUiState.ShowingCode,
-                is LoginUiState.Polling,
                 -> return@launch
 
                 is LoginUiState.Initial,

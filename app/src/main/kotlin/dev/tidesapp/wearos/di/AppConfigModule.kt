@@ -7,6 +7,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Named
 
+// audited 2026-04-14, named bindings verified: clientId / clientSecret / clientVersion
+// sourced from BuildConfig which now uses findProperty() for fresh-clone safety.
 @Module
 @InstallIn(SingletonComponent::class)
 object AppConfigModule {

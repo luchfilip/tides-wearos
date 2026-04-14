@@ -3,6 +3,7 @@ package dev.tidesapp.wearos.settings.ui.settings
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.tidesapp.wearos.auth.domain.repository.AuthRepository
 import dev.tidesapp.wearos.core.domain.model.AudioQualityPreference
 import dev.tidesapp.wearos.settings.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,6 +43,7 @@ sealed interface SettingsUiEffect {
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Initial)
@@ -99,6 +101,10 @@ class SettingsViewModel @Inject constructor(
 
     private fun logout() {
         viewModelScope.launch {
+            // Clear the session before navigating. If logout throws (e.g. the
+            // SDK fails to revoke the token), we still navigate to login rather
+            // than trap the user on the settings screen.
+            runCatching { authRepository.logout() }
             _uiEffect.send(SettingsUiEffect.NavigateToLogin)
         }
     }

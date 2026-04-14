@@ -66,8 +66,6 @@ fun LoginContent(
             modifier = modifier,
         )
 
-        is LoginUiState.Polling -> LoadingContent(modifier)
-
         is LoginUiState.Success -> SuccessContent(modifier)
 
         is LoginUiState.Error -> ErrorContent(
