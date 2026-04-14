@@ -13,6 +13,7 @@ import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -48,11 +49,9 @@ class SettingsViewModelTest {
     private fun stubDefaults(
         quality: AudioQualityPreference = AudioQualityPreference.HIGH,
         wifiOnly: Boolean = false,
-        storageUsed: String = "0 MB",
     ) {
         every { settingsRepository.getAudioQuality() } returns flowOf(quality)
         every { settingsRepository.isWifiOnly() } returns flowOf(wifiOnly)
-        coEvery { settingsRepository.getStorageUsed() } returns storageUsed
     }
 
     @Test
@@ -60,7 +59,6 @@ class SettingsViewModelTest {
         stubDefaults(
             quality = AudioQualityPreference.LOSSLESS,
             wifiOnly = true,
-            storageUsed = "42 MB",
         )
 
         viewModel = SettingsViewModel(settingsRepository, authRepository)
@@ -71,7 +69,6 @@ class SettingsViewModelTest {
         val loaded = state as SettingsUiState.Loaded
         assertEquals(AudioQualityPreference.LOSSLESS, loaded.quality)
         assertTrue(loaded.wifiOnly)
-        assertEquals("42 MB", loaded.storageUsed)
     }
 
     @Test
@@ -89,6 +86,25 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun `ChangeQuality emits ShowError when repo fails`() = runTest {
+        stubDefaults()
+        coEvery { settingsRepository.setAudioQuality(any()) } throws RuntimeException("disk full")
+
+        viewModel = SettingsViewModel(settingsRepository, authRepository)
+        advanceUntilIdle()
+
+        viewModel.uiEffect.test {
+            viewModel.onEvent(SettingsUiEvent.ChangeQuality(AudioQualityPreference.LOSSLESS))
+            advanceUntilIdle()
+
+            val effect = awaitItem()
+            assertTrue(effect is SettingsUiEffect.ShowError)
+            assertEquals("disk full", (effect as SettingsUiEffect.ShowError).message)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
     fun `ToggleWifiOnly persists to DataStore`() = runTest {
         stubDefaults(wifiOnly = false)
         coEvery { settingsRepository.setWifiOnly(any()) } returns Unit
@@ -100,6 +116,43 @@ class SettingsViewModelTest {
         advanceUntilIdle()
 
         coVerify { settingsRepository.setWifiOnly(true) }
+    }
+
+    @Test
+    fun `ToggleWifiOnly emits ShowError when repo fails`() = runTest {
+        stubDefaults(wifiOnly = false)
+        coEvery { settingsRepository.setWifiOnly(any()) } throws RuntimeException("write failed")
+
+        viewModel = SettingsViewModel(settingsRepository, authRepository)
+        advanceUntilIdle()
+
+        viewModel.uiEffect.test {
+            viewModel.onEvent(SettingsUiEvent.ToggleWifiOnly)
+            advanceUntilIdle()
+
+            val effect = awaitItem()
+            assertTrue(effect is SettingsUiEffect.ShowError)
+            assertEquals("write failed", (effect as SettingsUiEffect.ShowError).message)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `load failure emits ShowError`() = runTest {
+        every { settingsRepository.getAudioQuality() } returns flow {
+            throw RuntimeException("datastore corrupt")
+        }
+        every { settingsRepository.isWifiOnly() } returns flowOf(false)
+
+        viewModel = SettingsViewModel(settingsRepository, authRepository)
+
+        viewModel.uiEffect.test {
+            advanceUntilIdle()
+            val effect = awaitItem()
+            assertTrue(effect is SettingsUiEffect.ShowError)
+            assertEquals("datastore corrupt", (effect as SettingsUiEffect.ShowError).message)
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 
     @Test

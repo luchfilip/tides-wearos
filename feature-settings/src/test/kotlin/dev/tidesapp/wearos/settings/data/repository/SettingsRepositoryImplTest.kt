@@ -61,10 +61,4 @@ class SettingsRepositoryImplTest {
         val wifiOnly = repository.isWifiOnly().first()
         assertTrue(wifiOnly)
     }
-
-    @Test
-    fun `getStorageUsed returns placeholder`() = testScope.runTest {
-        val storage = repository.getStorageUsed()
-        assertEquals("0 MB", storage)
-    }
 }

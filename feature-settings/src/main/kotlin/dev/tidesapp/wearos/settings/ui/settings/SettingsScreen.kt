@@ -2,13 +2,14 @@ package dev.tidesapp.wearos.settings.ui.settings
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.Chip
@@ -21,6 +22,9 @@ import androidx.wear.compose.material.ToggleChip
 import androidx.wear.compose.material.ToggleChipDefaults
 import dev.tidesapp.wearos.core.domain.model.AudioQualityPreference
 import dev.tidesapp.wearos.core.ui.components.LoadingScreen
+import kotlinx.coroutines.delay
+
+private const val ERROR_DISMISS_MILLIS = 4_000L
 
 @Composable
 fun SettingsScreen(
@@ -28,15 +32,11 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(Unit) {
-        if (uiState is SettingsUiState.Initial) {
-            viewModel.onEvent(SettingsUiEvent.LoadSettings)
-        }
-    }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     SettingsContent(
         uiState = uiState,
+        errorMessage = errorMessage,
         onEvent = viewModel::onEvent,
     )
 
@@ -44,8 +44,15 @@ fun SettingsScreen(
         viewModel.uiEffect.collect { effect ->
             when (effect) {
                 is SettingsUiEffect.NavigateToLogin -> onNavigateToLogin()
-                is SettingsUiEffect.ShowError -> { /* handled via state */ }
+                is SettingsUiEffect.ShowError -> errorMessage = effect.message
             }
+        }
+    }
+
+    LaunchedEffect(errorMessage) {
+        if (errorMessage != null) {
+            delay(ERROR_DISMISS_MILLIS)
+            errorMessage = null
         }
     }
 }
@@ -53,6 +60,7 @@ fun SettingsScreen(
 @Composable
 fun SettingsContent(
     uiState: SettingsUiState,
+    errorMessage: String?,
     onEvent: (SettingsUiEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -60,6 +68,7 @@ fun SettingsContent(
         is SettingsUiState.Initial -> LoadingScreen(modifier)
         is SettingsUiState.Loaded -> LoadedContent(
             state = uiState,
+            errorMessage = errorMessage,
             onEvent = onEvent,
             modifier = modifier,
         )
@@ -69,6 +78,7 @@ fun SettingsContent(
 @Composable
 private fun LoadedContent(
     state: SettingsUiState.Loaded,
+    errorMessage: String?,
     onEvent: (SettingsUiEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -78,6 +88,17 @@ private fun LoadedContent(
         item {
             ListHeader {
                 Text("Settings")
+            }
+        }
+
+        if (errorMessage != null) {
+            item {
+                Text(
+                    text = errorMessage,
+                    style = MaterialTheme.typography.caption2,
+                    color = MaterialTheme.colors.error,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
         }
 
@@ -105,15 +126,6 @@ private fun LoadedContent(
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
-            )
-        }
-
-        item {
-            Text(
-                text = "Storage: ${state.storageUsed}",
-                style = MaterialTheme.typography.caption2,
-                color = MaterialTheme.colors.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp),
             )
         }
 

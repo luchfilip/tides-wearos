@@ -50,6 +50,4 @@ class SettingsRepositoryImpl @Inject constructor(
             preferences[Keys.WIFI_ONLY] = wifiOnly
         }
     }
-
-    override suspend fun getStorageUsed(): String = "0 MB"
 }

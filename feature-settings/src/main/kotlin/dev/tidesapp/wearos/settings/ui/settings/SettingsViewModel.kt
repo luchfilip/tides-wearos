@@ -11,6 +11,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -22,13 +23,11 @@ sealed interface SettingsUiState {
     data class Loaded(
         val quality: AudioQualityPreference,
         val wifiOnly: Boolean,
-        val storageUsed: String,
     ) : SettingsUiState
 }
 
 @Immutable
 sealed interface SettingsUiEvent {
-    data object LoadSettings : SettingsUiEvent
     data class ChangeQuality(val quality: AudioQualityPreference) : SettingsUiEvent
     data object ToggleWifiOnly : SettingsUiEvent
     data object Logout : SettingsUiEvent
@@ -52,50 +51,63 @@ class SettingsViewModel @Inject constructor(
     private val _uiEffect = Channel<SettingsUiEffect>()
     val uiEffect = _uiEffect.receiveAsFlow()
 
+    init {
+        observeSettings()
+    }
+
     fun onEvent(event: SettingsUiEvent) {
         when (event) {
-            SettingsUiEvent.LoadSettings -> loadSettings()
             is SettingsUiEvent.ChangeQuality -> changeQuality(event.quality)
             SettingsUiEvent.ToggleWifiOnly -> toggleWifiOnly()
             SettingsUiEvent.Logout -> logout()
         }
     }
 
-    private fun loadSettings() {
+    /**
+     * Subscribe to the underlying preference flows so the UI reflects external
+     * changes (e.g. the SDK writing a quality override after a stream starts).
+     * Runs once on construction and stays collecting for the VM's lifetime.
+     */
+    private fun observeSettings() {
         viewModelScope.launch {
-            try {
-                combine(
-                    settingsRepository.getAudioQuality(),
-                    settingsRepository.isWifiOnly(),
-                ) { quality, wifiOnly ->
-                    SettingsUiState.Loaded(
-                        quality = quality,
-                        wifiOnly = wifiOnly,
-                        storageUsed = settingsRepository.getStorageUsed(),
-                    )
-                }.collect { state ->
-                    _uiState.value = state
-                }
-            } catch (e: Exception) {
+            combine(
+                settingsRepository.getAudioQuality(),
+                settingsRepository.isWifiOnly(),
+            ) { quality, wifiOnly ->
+                SettingsUiState.Loaded(
+                    quality = quality,
+                    wifiOnly = wifiOnly,
+                )
+            }.catch { e ->
                 _uiEffect.send(
                     SettingsUiEffect.ShowError(e.message ?: "Failed to load settings"),
                 )
+            }.collect { state ->
+                _uiState.value = state
             }
         }
     }
 
     private fun changeQuality(quality: AudioQualityPreference) {
         viewModelScope.launch {
-            settingsRepository.setAudioQuality(quality)
+            runCatching { settingsRepository.setAudioQuality(quality) }
+                .onFailure { e ->
+                    _uiEffect.send(
+                        SettingsUiEffect.ShowError(e.message ?: "Failed to save quality"),
+                    )
+                }
         }
     }
 
     private fun toggleWifiOnly() {
         viewModelScope.launch {
-            val currentState = _uiState.value
-            if (currentState is SettingsUiState.Loaded) {
-                settingsRepository.setWifiOnly(!currentState.wifiOnly)
-            }
+            val currentState = _uiState.value as? SettingsUiState.Loaded ?: return@launch
+            runCatching { settingsRepository.setWifiOnly(!currentState.wifiOnly) }
+                .onFailure { e ->
+                    _uiEffect.send(
+                        SettingsUiEffect.ShowError(e.message ?: "Failed to save preference"),
+                    )
+                }
         }
     }
 
