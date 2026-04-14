@@ -61,7 +61,6 @@ dependencies {
     implementation(project(":feature-auth"))
     implementation(project(":feature-player"))
     implementation(project(":feature-library"))
-    implementation(project(":feature-offline"))
     implementation(project(":feature-settings"))
 
     implementation(libs.androidx.core.ktx)

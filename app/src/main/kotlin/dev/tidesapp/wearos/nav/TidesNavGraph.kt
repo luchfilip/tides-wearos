@@ -1,20 +1,13 @@
 package dev.tidesapp.wearos.nav
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.Text
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
@@ -22,6 +15,7 @@ import dev.tidesapp.wearos.auth.ui.login.LoginScreen
 import dev.tidesapp.wearos.library.ui.albumdetail.AlbumDetailScreen
 import dev.tidesapp.wearos.library.ui.albums.AlbumsScreen
 import dev.tidesapp.wearos.library.ui.home.HomeScreen
+import dev.tidesapp.wearos.library.ui.mixdetail.MixDetailScreen
 import dev.tidesapp.wearos.library.ui.playlistdetail.PlaylistDetailScreen
 import dev.tidesapp.wearos.library.ui.playlists.PlaylistsScreen
 import dev.tidesapp.wearos.library.ui.search.SearchScreen
@@ -34,9 +28,9 @@ import kotlinx.serialization.Serializable
 @Serializable object LibraryHomeRoute
 @Serializable data class AlbumDetailRoute(val albumId: String)
 @Serializable data class PlaylistDetailRoute(val playlistId: String)
+@Serializable data class MixDetailRoute(val mixId: String)
 @Serializable object SearchRoute
 @Serializable object NowPlayingRoute
-@Serializable object DownloadsRoute
 @Serializable object SettingsRoute
 
 object Routes {
@@ -46,13 +40,19 @@ object Routes {
     const val PLAYLISTS = "playlists"
     const val ALBUM_DETAIL = "album_detail/{albumId}"
     const val PLAYLIST_DETAIL = "playlist_detail/{playlistId}"
+    const val MIX_DETAIL = "mix_detail/{mixId}?title={title}&subTitle={subTitle}&imageUrl={imageUrl}"
     const val SEARCH = "search"
     const val NOW_PLAYING = "now_playing"
-    const val DOWNLOADS = "downloads"
     const val SETTINGS = "settings"
 
     fun albumDetail(albumId: String) = "album_detail/$albumId"
     fun playlistDetail(playlistId: String) = "playlist_detail/$playlistId"
+    fun mixDetail(mixId: String, title: String, subTitle: String?, imageUrl: String?): String {
+        val encodedTitle = Uri.encode(title)
+        val encodedSubtitle = Uri.encode(subTitle.orEmpty())
+        val encodedImage = Uri.encode(imageUrl.orEmpty())
+        return "mix_detail/$mixId?title=$encodedTitle&subTitle=$encodedSubtitle&imageUrl=$encodedImage"
+    }
     fun nowPlaying(trackId: String? = null): String =
         if (trackId != null) "now_playing?trackId=$trackId" else "now_playing"
 }
@@ -108,14 +108,14 @@ fun TidesNavGraph() {
                 onNavigateToPlaylist = { playlistId ->
                     navController.navigate(Routes.playlistDetail(playlistId))
                 },
+                onNavigateToMix = { mixId, title, subTitle, imageUrl ->
+                    navController.navigate(Routes.mixDetail(mixId, title, subTitle, imageUrl))
+                },
                 onNavigateToNowPlaying = {
                     navController.navigate(Routes.nowPlaying())
                 },
                 onNavigateToSearch = {
                     navController.navigate(Routes.SEARCH)
-                },
-                onNavigateToDownloads = {
-                    navController.navigate(Routes.DOWNLOADS)
                 },
                 onNavigateToSettings = {
                     navController.navigate(Routes.SETTINGS)
@@ -165,6 +165,34 @@ fun TidesNavGraph() {
             )
         }
 
+        composable(
+            route = Routes.MIX_DETAIL,
+            arguments = listOf(
+                navArgument("mixId") { type = NavType.StringType },
+                navArgument("title") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+                navArgument("subTitle") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+                navArgument("imageUrl") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+            ),
+        ) {
+            MixDetailScreen(
+                onNavigateToNowPlaying = { trackId ->
+                    navController.navigate(Routes.nowPlaying(trackId))
+                },
+            )
+        }
+
         composable(Routes.SEARCH) {
             SearchScreen(
                 onNavigateToAlbumDetail = { albumId ->
@@ -198,10 +226,6 @@ fun TidesNavGraph() {
             )
         }
 
-        composable(Routes.DOWNLOADS) {
-            PlaceholderScreen("Downloads")
-        }
-
         composable(Routes.SETTINGS) {
             SettingsScreen(
                 onNavigateToLogin = {
@@ -214,17 +238,3 @@ fun TidesNavGraph() {
     }
 }
 
-@Composable
-private fun PlaceholderScreen(name: String) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = name,
-            style = MaterialTheme.typography.title3,
-            textAlign = TextAlign.Center,
-        )
-    }
-}

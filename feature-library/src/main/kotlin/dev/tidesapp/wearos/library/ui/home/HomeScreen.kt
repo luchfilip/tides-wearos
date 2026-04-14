@@ -24,9 +24,9 @@ import kotlinx.collections.immutable.ImmutableList
 fun HomeScreen(
     onNavigateToAlbum: (String) -> Unit,
     onNavigateToPlaylist: (String) -> Unit,
+    onNavigateToMix: (mixId: String, title: String, subTitle: String?, imageUrl: String?) -> Unit,
     onNavigateToNowPlaying: () -> Unit,
     onNavigateToSearch: () -> Unit,
-    onNavigateToDownloads: () -> Unit,
     onNavigateToSettings: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -37,7 +37,6 @@ fun HomeScreen(
         onEvent = viewModel::onEvent,
         onNavigateToNowPlaying = onNavigateToNowPlaying,
         onNavigateToSearch = onNavigateToSearch,
-        onNavigateToDownloads = onNavigateToDownloads,
         onNavigateToSettings = onNavigateToSettings,
     )
 
@@ -46,6 +45,12 @@ fun HomeScreen(
             when (effect) {
                 is HomeUiEffect.NavigateToAlbum -> onNavigateToAlbum(effect.albumId)
                 is HomeUiEffect.NavigateToPlaylist -> onNavigateToPlaylist(effect.playlistId)
+                is HomeUiEffect.NavigateToMix -> onNavigateToMix(
+                    effect.mixId,
+                    effect.title,
+                    effect.subTitle,
+                    effect.imageUrl,
+                )
             }
         }
     }
@@ -63,7 +68,6 @@ fun HomeContent(
     onEvent: (HomeUiEvent) -> Unit,
     onNavigateToNowPlaying: () -> Unit,
     onNavigateToSearch: () -> Unit,
-    onNavigateToDownloads: () -> Unit,
     onNavigateToSettings: () -> Unit,
 ) {
     when (uiState) {
@@ -75,7 +79,6 @@ fun HomeContent(
             onEvent = onEvent,
             onNavigateToNowPlaying = onNavigateToNowPlaying,
             onNavigateToSearch = onNavigateToSearch,
-            onNavigateToDownloads = onNavigateToDownloads,
             onNavigateToSettings = onNavigateToSettings,
         )
 
@@ -92,7 +95,6 @@ private fun HomeList(
     onEvent: (HomeUiEvent) -> Unit,
     onNavigateToNowPlaying: () -> Unit,
     onNavigateToSearch: () -> Unit,
-    onNavigateToDownloads: () -> Unit,
     onNavigateToSettings: () -> Unit,
 ) {
     val columnState = rememberResponsiveColumnState(
@@ -150,13 +152,6 @@ private fun HomeList(
             TidesChip(
                 label = "Search",
                 onClick = onNavigateToSearch,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-        item {
-            TidesChip(
-                label = "Downloads",
-                onClick = onNavigateToDownloads,
                 modifier = Modifier.fillMaxWidth(),
             )
         }

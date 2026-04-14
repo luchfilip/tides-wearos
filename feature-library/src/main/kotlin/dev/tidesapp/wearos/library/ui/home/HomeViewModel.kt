@@ -37,6 +37,12 @@ sealed interface HomeUiEvent {
 sealed interface HomeUiEffect {
     data class NavigateToAlbum(val albumId: String) : HomeUiEffect
     data class NavigateToPlaylist(val playlistId: String) : HomeUiEffect
+    data class NavigateToMix(
+        val mixId: String,
+        val title: String,
+        val subTitle: String?,
+        val imageUrl: String?,
+    ) : HomeUiEffect
 }
 
 @HiltViewModel
@@ -82,7 +88,14 @@ class HomeViewModel @Inject constructor(
             when (item) {
                 is HomeFeedItem.Album -> _uiEffect.send(HomeUiEffect.NavigateToAlbum(item.id))
                 is HomeFeedItem.Playlist -> _uiEffect.send(HomeUiEffect.NavigateToPlaylist(item.id))
-                is HomeFeedItem.Mix -> {} // Mixes not navigable yet
+                is HomeFeedItem.Mix -> _uiEffect.send(
+                    HomeUiEffect.NavigateToMix(
+                        mixId = item.id,
+                        title = item.title,
+                        subTitle = item.subTitle,
+                        imageUrl = item.imageUrl,
+                    ),
+                )
             }
         }
     }

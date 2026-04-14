@@ -6,6 +6,7 @@ import dev.tidesapp.wearos.library.data.dto.CollectionPlaylistsResponseDto
 import dev.tidesapp.wearos.library.data.dto.HomeFeedV2ResponseDto
 import dev.tidesapp.wearos.library.data.dto.PlaylistDataDto
 import dev.tidesapp.wearos.library.data.dto.SearchResponseDto
+import dev.tidesapp.wearos.library.data.dto.V1MixItemsResponseDto
 import dev.tidesapp.wearos.library.data.dto.V1TrackListResponseDto
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -59,6 +60,14 @@ interface TidesLibraryApi {
         @Query("offset") offset: Int = 0,
         @Query("limit") limit: Int = 50,
     ): V1TrackListResponseDto
+
+    @GET("v1/mixes/{mixId}/items")
+    suspend fun getMixItems(
+        @Header("Authorization") token: String,
+        @Path("mixId") mixId: String,
+        @Query("offset") offset: Int = 0,
+        @Query("limit") limit: Int = 100,
+    ): V1MixItemsResponseDto
 
     @GET("v2/home/feed/STATIC")
     suspend fun getHomeFeedV2(

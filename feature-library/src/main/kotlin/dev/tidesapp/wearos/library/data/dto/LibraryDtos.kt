@@ -35,6 +35,29 @@ data class V1TrackListResponseDto(
 )
 
 // =================================================================
+// v1 mix items DTO — /v1/mixes/{id}/items
+//
+// Confirmed on-device 2026-04-14: this endpoint wraps each track in a
+// `{ item: Track, type: "track" }` envelope, unlike /v1/playlists/{id}/tracks
+// which returns tracks directly under `items[]`. The inner `item` object has
+// the same shape as TrackDataDto, so we reuse that.
+// =================================================================
+
+@Serializable
+data class V1MixItemsResponseDto(
+    val limit: Int = 0,
+    val offset: Int = 0,
+    val totalNumberOfItems: Int = 0,
+    val items: List<V1MixItemEnvelopeDto> = emptyList(),
+)
+
+@Serializable
+data class V1MixItemEnvelopeDto(
+    val item: TrackDataDto? = null,
+    val type: String = "",
+)
+
+// =================================================================
 // Real API data DTOs — matching actual Tidal API response schemas
 // =================================================================
 

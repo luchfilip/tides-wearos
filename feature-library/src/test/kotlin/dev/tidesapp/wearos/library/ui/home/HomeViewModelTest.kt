@@ -128,6 +128,31 @@ class HomeViewModelTest {
         }
     }
 
+    @Test
+    fun `FeedItemClicked with Mix emits NavigateToMix effect with header metadata`() = runTest {
+        viewModel = buildViewModel(FakeHomeRepository(Result.success(fakeSections)))
+        viewModel.onEvent(HomeUiEvent.LoadHome)
+        advanceUntilIdle()
+
+        val mix = HomeFeedItem.Mix(
+            id = "00155914c3b5c1a6d3a83a27b4f941",
+            title = "Track Radio",
+            imageUrl = "https://images.tidal.com/mix.jpg",
+            subTitle = "What Else Is There?",
+        )
+
+        viewModel.uiEffect.test {
+            viewModel.onEvent(HomeUiEvent.FeedItemClicked(mix))
+            val effect = awaitItem()
+            assertTrue(effect is HomeUiEffect.NavigateToMix)
+            val navEffect = effect as HomeUiEffect.NavigateToMix
+            assertEquals("00155914c3b5c1a6d3a83a27b4f941", navEffect.mixId)
+            assertEquals("Track Radio", navEffect.title)
+            assertEquals("What Else Is There?", navEffect.subTitle)
+            assertEquals("https://images.tidal.com/mix.jpg", navEffect.imageUrl)
+        }
+    }
+
     private class FakeHomeRepository(
         private val result: Result<List<HomeFeedSection>> = Result.success(emptyList()),
     ) : HomeRepository {

@@ -3,10 +3,12 @@ package dev.tidesapp.wearos.library.di
 import dev.tidesapp.wearos.library.data.api.TidesLibraryApi
 import dev.tidesapp.wearos.library.data.repository.AlbumRepositoryImpl
 import dev.tidesapp.wearos.library.data.repository.HomeRepositoryImpl
+import dev.tidesapp.wearos.library.data.repository.MixRepositoryImpl
 import dev.tidesapp.wearos.library.data.repository.PlaylistRepositoryImpl
 import dev.tidesapp.wearos.library.data.repository.SearchRepositoryImpl
 import dev.tidesapp.wearos.library.domain.repository.AlbumRepository
 import dev.tidesapp.wearos.library.domain.repository.HomeRepository
+import dev.tidesapp.wearos.library.domain.repository.MixRepository
 import dev.tidesapp.wearos.library.domain.repository.PlaylistRepository
 import dev.tidesapp.wearos.library.domain.repository.SearchRepository
 import dagger.Binds
@@ -26,6 +28,9 @@ abstract class LibraryRepositoryModule {
 
     @Binds
     abstract fun bindHomeRepository(impl: HomeRepositoryImpl): HomeRepository
+
+    @Binds
+    abstract fun bindMixRepository(impl: MixRepositoryImpl): MixRepository
 
     @Binds
     abstract fun bindPlaylistRepository(impl: PlaylistRepositoryImpl): PlaylistRepository
