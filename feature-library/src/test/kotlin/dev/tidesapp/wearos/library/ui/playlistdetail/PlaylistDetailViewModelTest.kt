@@ -51,9 +51,9 @@ class PlaylistDetailViewModelTest {
 
     @Test
     fun `LoadPlaylistDetail successfully loads playlist and tracks`() = runTest {
-        val playlists = listOf(createTestPlaylist())
+        val playlist = createTestPlaylist()
         val tracks = createTestTracks(3)
-        coEvery { repository.getUserPlaylists(false) } returns Result.success(playlists)
+        coEvery { repository.getPlaylist("playlist-1") } returns Result.success(playlist)
         coEvery { repository.getPlaylistTracks("playlist-1") } returns Result.success(tracks)
 
         viewModel = PlaylistDetailViewModel(repository, playbackControl, SavedStateHandle())
@@ -69,7 +69,7 @@ class PlaylistDetailViewModelTest {
 
     @Test
     fun `LoadPlaylistDetail failure shows Error state`() = runTest {
-        coEvery { repository.getUserPlaylists(false) } returns Result.failure(
+        coEvery { repository.getPlaylist("playlist-1") } returns Result.failure(
             RuntimeException("Not found")
         )
         coEvery { repository.getPlaylistTracks("playlist-1") } returns Result.failure(
@@ -87,9 +87,9 @@ class PlaylistDetailViewModelTest {
 
     @Test
     fun `PlayTrack emits NavigateToNowPlaying effect`() = runTest {
-        val playlists = listOf(createTestPlaylist())
+        val playlist = createTestPlaylist()
         val tracks = createTestTracks(2)
-        coEvery { repository.getUserPlaylists(false) } returns Result.success(playlists)
+        coEvery { repository.getPlaylist("playlist-1") } returns Result.success(playlist)
         coEvery { repository.getPlaylistTracks("playlist-1") } returns Result.success(tracks)
 
         viewModel = PlaylistDetailViewModel(repository, playbackControl, SavedStateHandle())
@@ -105,9 +105,9 @@ class PlaylistDetailViewModelTest {
 
     @Test
     fun `PlayAll emits NavigateToNowPlaying with first track`() = runTest {
-        val playlists = listOf(createTestPlaylist())
+        val playlist = createTestPlaylist()
         val tracks = createTestTracks(3)
-        coEvery { repository.getUserPlaylists(false) } returns Result.success(playlists)
+        coEvery { repository.getPlaylist("playlist-1") } returns Result.success(playlist)
         coEvery { repository.getPlaylistTracks("playlist-1") } returns Result.success(tracks)
 
         viewModel = PlaylistDetailViewModel(repository, playbackControl, SavedStateHandle())
@@ -123,9 +123,10 @@ class PlaylistDetailViewModelTest {
 
     @Test
     fun `playlist not found in list shows Error`() = runTest {
-        val playlists = listOf(createTestPlaylist())
         val tracks = createTestTracks(2)
-        coEvery { repository.getUserPlaylists(false) } returns Result.success(playlists)
+        coEvery { repository.getPlaylist("nonexistent") } returns Result.failure(
+            RuntimeException("Failed to load playlist")
+        )
         coEvery { repository.getPlaylistTracks("nonexistent") } returns Result.success(tracks)
 
         viewModel = PlaylistDetailViewModel(repository, playbackControl, SavedStateHandle())
