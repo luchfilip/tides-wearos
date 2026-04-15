@@ -34,7 +34,7 @@ android {
         applicationId = "dev.tidesapp.wearos"
         minSdk = 30
         targetSdk = 34
-        versionCode = 2
+        versionCode = 3
         versionName = "1.0.1"
 
         // Use findProperty(...) rather than property(...) so fresh clones without a
