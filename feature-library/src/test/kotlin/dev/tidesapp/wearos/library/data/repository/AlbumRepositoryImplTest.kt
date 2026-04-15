@@ -4,6 +4,7 @@ import com.tidal.sdk.auth.CredentialsProvider
 import dev.tidesapp.wearos.library.data.api.TidesLibraryApi
 import dev.tidesapp.wearos.library.data.dto.AlbumDataDto
 import dev.tidesapp.wearos.library.data.dto.ArtistBriefDto
+import dev.tidesapp.wearos.library.data.dto.CollectionAlbumEntryDto
 import dev.tidesapp.wearos.library.data.dto.CollectionAlbumsResponseDto
 import dev.tidesapp.wearos.library.data.dto.TrackAlbumDto
 import dev.tidesapp.wearos.library.data.dto.TrackDataDto
@@ -144,13 +145,16 @@ class AlbumRepositoryImplTest {
 
     private fun createCollectionResponse(count: Int) = CollectionAlbumsResponseDto(
         items = List(count) { index ->
-            AlbumDataDto(
-                id = index.toLong(),
-                title = "Album $index",
-                artists = listOf(ArtistBriefDto(id = 1, name = "Artist")),
-                cover = "aabbccdd-1122-3344-5566-77889900${index.toString().padStart(4, '0')}",
-                releaseDate = "2024-01-01",
-                numberOfTracks = 10,
+            CollectionAlbumEntryDto(
+                itemType = "ALBUM",
+                data = AlbumDataDto(
+                    id = index.toLong(),
+                    title = "Album $index",
+                    artists = listOf(ArtistBriefDto(id = 1, name = "Artist")),
+                    cover = "aabbccdd-1122-3344-5566-77889900${index.toString().padStart(4, '0')}",
+                    releaseDate = "2024-01-01",
+                    numberOfTracks = 10,
+                ),
             )
         },
         totalNumberOfItems = count,

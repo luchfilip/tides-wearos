@@ -7,10 +7,26 @@ import kotlinx.serialization.json.JsonElement
 // Collection DTOs — cursor-based pagination (/v2/my-collection/*)
 // =================================================================
 
+// Each entry in /v2/my-collection/{type}/folders items[] is an envelope:
+// { trn, itemType: "ALBUM"|"PLAYLIST"|"FOLDER", addedAt, lastModifiedAt, name,
+//   parent, data: { ...full content object... } }
+// Confirmed on-device 2026-04-14 for both albums and playlists. See .docs/04-my-collection.md §1.3.
+@Serializable
+data class CollectionAlbumEntryDto(
+    val itemType: String = "",
+    val data: AlbumDataDto? = null,
+)
+
+@Serializable
+data class CollectionPlaylistEntryDto(
+    val itemType: String = "",
+    val data: PlaylistDataDto? = null,
+)
+
 @Serializable
 data class CollectionAlbumsResponseDto(
     val lastModifiedAt: String? = null,
-    val items: List<AlbumDataDto> = emptyList(),
+    val items: List<CollectionAlbumEntryDto> = emptyList(),
     val totalNumberOfItems: Int = 0,
     val cursor: String? = null,
 )
@@ -18,7 +34,7 @@ data class CollectionAlbumsResponseDto(
 @Serializable
 data class CollectionPlaylistsResponseDto(
     val lastModifiedAt: String? = null,
-    val items: List<PlaylistDataDto> = emptyList(),
+    val items: List<CollectionPlaylistEntryDto> = emptyList(),
     val totalNumberOfItems: Int = 0,
     val cursor: String? = null,
 )

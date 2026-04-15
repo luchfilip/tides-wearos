@@ -37,7 +37,9 @@ class AlbumRepositoryImpl @Inject constructor(
             try {
                 val token = getBearerToken().getOrElse { return@withLock Result.failure(it) }
                 val response = api.getUserAlbums(token = token)
-                val albums = response.items.map { it.toDomain() }
+                val albums = response.items
+                    .filter { it.itemType == "ALBUM" }
+                    .mapNotNull { it.data?.toDomain() }
                 cachedAlbums = albums
                 Result.success(albums)
             } catch (e: Exception) {

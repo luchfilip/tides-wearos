@@ -37,7 +37,9 @@ class PlaylistRepositoryImpl @Inject constructor(
             try {
                 val token = getBearerToken().getOrElse { return@withLock Result.failure(it) }
                 val response = api.getUserPlaylists(token = token)
-                val playlists = response.items.map { it.toDomain() }
+                val playlists = response.items
+                    .filter { it.itemType == "PLAYLIST" }
+                    .mapNotNull { it.data?.toDomain() }
                 cachedPlaylists = playlists
                 Result.success(playlists)
             } catch (e: Exception) {

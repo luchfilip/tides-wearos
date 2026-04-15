@@ -3,6 +3,7 @@ package dev.tidesapp.wearos.library.data.repository
 import com.tidal.sdk.auth.CredentialsProvider
 import dev.tidesapp.wearos.library.data.api.TidesLibraryApi
 import dev.tidesapp.wearos.library.data.dto.ArtistBriefDto
+import dev.tidesapp.wearos.library.data.dto.CollectionPlaylistEntryDto
 import dev.tidesapp.wearos.library.data.dto.CollectionPlaylistsResponseDto
 import dev.tidesapp.wearos.library.data.dto.PlaylistCreatorDto
 import dev.tidesapp.wearos.library.data.dto.PlaylistDataDto
@@ -130,13 +131,16 @@ class PlaylistRepositoryImplTest {
 
     private fun createPlaylistsResponse(count: Int) = CollectionPlaylistsResponseDto(
         items = List(count) { index ->
-            PlaylistDataDto(
-                uuid = "playlist-$index",
-                title = "Playlist $index",
-                description = "Description $index",
-                squareImage = "aabbccdd-1122-3344-5566-77889900${index.toString().padStart(4, '0')}",
-                numberOfTracks = 15,
-                creator = PlaylistCreatorDto(name = "User"),
+            CollectionPlaylistEntryDto(
+                itemType = "PLAYLIST",
+                data = PlaylistDataDto(
+                    uuid = "playlist-$index",
+                    title = "Playlist $index",
+                    description = "Description $index",
+                    squareImage = "aabbccdd-1122-3344-5566-77889900${index.toString().padStart(4, '0')}",
+                    numberOfTracks = 15,
+                    creator = PlaylistCreatorDto(name = "User"),
+                ),
             )
         },
         totalNumberOfItems = count,
