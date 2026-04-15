@@ -23,6 +23,7 @@ logs/
 
 # Secrets
 gradle.properties
+.keys/
 
 # Project management / AI
 .gira/
