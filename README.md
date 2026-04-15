@@ -13,6 +13,33 @@ An unofficial Tidal client for Wear OS, built with Kotlin and Jetpack Compose.
 https://github.com/user-attachments/assets/7adf29ef-2327-40ef-b461-9463c7a94e71
 
 
+## Why I Built This
+
+Tidal users are canceling their subscriptions over Tidal not supporting WearOS. 
+Every major music streaming service like Spotify, YouTube Music, Deezer, Amazon Music, SoundCloud has a native Wear OS app. 
+Tidal doesn't so I built one.
+The demand has gone unanswered for over 4 years across Samsung Community forums, Reddit, and feature request boards. 
+
+Meanwhile Tidal already has an Apple Watch app that does all of this. Standalone streaming, offline downloads, media sessions, it's all already working on their side.
+
+The affected user base is estimated to 250k–500k users. People who bought LTE Galaxy Watches or Pixel Watches specifically to go phone free during workouts, runs, and commutes. 
+
+I personally LOVE running with no smartphone and nothing on me except my watch. And I'm quite sure I'm not the only one.
+
+<details>
+<summary>Market research</summary>
+
+- Wear OS holds ~27% global smartwatch OS market share (2024), up 6 points YoY - the only major platform gaining share
+- 60–100 million active Wear OS devices worldwide as of 2025
+- Tidal has had an Apple Watch app for years, so the hard stuff is already solved in their codebase. ([What Hi-Fi?](https://www.whathifi.com/news/new-tidal-apple-watch-app-works-without-an-iphone))
+- Tidal abandoned its Samsung Tizen wearable app when Samsung moved to Wear OS in 2021 and never followed. ([Grammy.com, 2018](https://www.grammy.com/news/listen-your-watch-tidal-app-now-compatible-samsung-wearables))
+- Forum post: ["Just canceled Tidal. Not available on WearOS."](https://www.tigerdroppings.com/rant/tech/just-canceled-tidal-not-available-on-wearos/107803524/)
+- Samsung Community: ["Galaxy Watch 4 Classic LTE no Tidal support!?"](https://eu.community.samsung.com/t5/wearables/samsung-galaxy-watch-4-classic-lte-no-tidal-support/td-p/3947258)
+- Samsung Community: ["TIDAL Support to Samsung Devices in 2025!"](https://eu.community.samsung.com/t5/audio-video/tidal-support-to-samsung-devices-in-2025/td-p/11073296)
+- [AlternativeTo lists Tidal as absent on Android Wear](https://alternativeto.net/software/tidal/?platform=android-wear), redirecting users to competitors
+
+</details>
+
 ## Features
 
 - Browse your Tidal library (albums, playlists, mixes)
