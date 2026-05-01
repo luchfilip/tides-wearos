@@ -9,6 +9,7 @@ pluginManagement {
         }
         mavenCentral()
         gradlePluginPortal()
+        mavenLocal()
     }
 }
 dependencyResolutionManagement {
@@ -17,6 +18,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven("https://jitpack.io")
+        mavenLocal()
     }
 }
 
@@ -27,3 +29,4 @@ include(":feature-auth")
 include(":feature-player")
 include(":feature-library")
 include(":feature-settings")
+include(":feature-download")

@@ -1,7 +1,9 @@
 package dev.tidesapp.wearos.settings.ui.settings
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -9,6 +11,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -20,6 +26,8 @@ import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleChip
 import androidx.wear.compose.material.ToggleChipDefaults
+import com.flintsdk.Flint
+import com.flintsdk.semantics.flintContent
 import dev.tidesapp.wearos.core.domain.model.AudioQualityPreference
 import dev.tidesapp.wearos.core.ui.components.LoadingScreen
 import kotlinx.coroutines.delay
@@ -33,6 +41,42 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    Flint.tools {
+        tool("change_quality", "Change audio quality") {
+            param("quality", "string", "Quality: LOW, HIGH, or LOSSLESS")
+            action { params ->
+                val qualityStr = params["quality"]?.toString()?.uppercase() ?: return@action null
+                val quality = try {
+                    AudioQualityPreference.valueOf(qualityStr)
+                } catch (_: IllegalArgumentException) {
+                    return@action null
+                }
+                viewModel.onEvent(SettingsUiEvent.ChangeQuality(quality))
+                null
+            }
+        }
+        tool("toggle_wifi_only", "Toggle WiFi-only streaming") {
+            action { viewModel.onEvent(SettingsUiEvent.ToggleWifiOnly); null }
+        }
+        tool("logout", "Log out of the app") {
+            action { viewModel.onEvent(SettingsUiEvent.Logout); null }
+        }
+    }
+
+    Box(modifier = Modifier.height(0.dp).flintContent("current_quality").semantics {
+        text = AnnotatedString(when (val state = uiState) {
+            is SettingsUiState.Loaded -> state.quality.name
+            else -> ""
+        })
+    })
+
+    Box(modifier = Modifier.height(0.dp).flintContent("wifi_only").semantics {
+        text = AnnotatedString(when (val state = uiState) {
+            is SettingsUiState.Loaded -> state.wifiOnly.toString()
+            else -> ""
+        })
+    })
 
     SettingsContent(
         uiState = uiState,

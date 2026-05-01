@@ -19,6 +19,10 @@ sealed interface LibraryItem {
         override val label: String = "Recent"
     }
 
+    data object Downloads : LibraryItem {
+        override val label: String = "Downloads"
+    }
+
     data object Settings : LibraryItem {
         override val label: String = "Settings"
     }

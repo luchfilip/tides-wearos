@@ -5,9 +5,13 @@ import app.cash.turbine.test
 import dev.tidesapp.wearos.core.domain.model.PlaylistItem
 import dev.tidesapp.wearos.core.domain.model.TrackItem
 import dev.tidesapp.wearos.core.domain.playback.PlaybackControl
+import dev.tidesapp.wearos.download.data.worker.DownloadWorkScheduler
+import dev.tidesapp.wearos.download.domain.repository.DownloadRepository
 import dev.tidesapp.wearos.library.domain.repository.PlaylistRepository
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -26,6 +30,8 @@ class PlaylistDetailViewModelTest {
 
     private lateinit var repository: PlaylistRepository
     private lateinit var playbackControl: PlaybackControl
+    private lateinit var downloadRepository: DownloadRepository
+    private lateinit var downloadWorkScheduler: DownloadWorkScheduler
     private lateinit var viewModel: PlaylistDetailViewModel
     private val testDispatcher = StandardTestDispatcher()
 
@@ -36,6 +42,10 @@ class PlaylistDetailViewModelTest {
         playbackControl = mockk {
             coEvery { playTracks(any(), any()) } returns Result.success(Unit)
         }
+        downloadRepository = mockk {
+            every { getDownloadedCollections() } returns flowOf(emptyList())
+        }
+        downloadWorkScheduler = mockk(relaxed = true)
     }
 
     @After
@@ -45,7 +55,7 @@ class PlaylistDetailViewModelTest {
 
     @Test
     fun `initial state is Initial`() {
-        viewModel = PlaylistDetailViewModel(repository, playbackControl, SavedStateHandle())
+        viewModel = PlaylistDetailViewModel(repository, playbackControl, downloadRepository, downloadWorkScheduler, SavedStateHandle())
         assertEquals(PlaylistDetailUiState.Initial, viewModel.uiState.value)
     }
 
@@ -56,7 +66,7 @@ class PlaylistDetailViewModelTest {
         coEvery { repository.getPlaylist("playlist-1") } returns Result.success(playlist)
         coEvery { repository.getPlaylistTracks("playlist-1") } returns Result.success(tracks)
 
-        viewModel = PlaylistDetailViewModel(repository, playbackControl, SavedStateHandle())
+        viewModel = PlaylistDetailViewModel(repository, playbackControl, downloadRepository, downloadWorkScheduler, SavedStateHandle())
         viewModel.onEvent(PlaylistDetailUiEvent.LoadPlaylistDetail("playlist-1"))
         advanceUntilIdle()
 
@@ -76,7 +86,7 @@ class PlaylistDetailViewModelTest {
             RuntimeException("Not found")
         )
 
-        viewModel = PlaylistDetailViewModel(repository, playbackControl, SavedStateHandle())
+        viewModel = PlaylistDetailViewModel(repository, playbackControl, downloadRepository, downloadWorkScheduler, SavedStateHandle())
         viewModel.onEvent(PlaylistDetailUiEvent.LoadPlaylistDetail("playlist-1"))
         advanceUntilIdle()
 
@@ -92,7 +102,7 @@ class PlaylistDetailViewModelTest {
         coEvery { repository.getPlaylist("playlist-1") } returns Result.success(playlist)
         coEvery { repository.getPlaylistTracks("playlist-1") } returns Result.success(tracks)
 
-        viewModel = PlaylistDetailViewModel(repository, playbackControl, SavedStateHandle())
+        viewModel = PlaylistDetailViewModel(repository, playbackControl, downloadRepository, downloadWorkScheduler, SavedStateHandle())
         viewModel.onEvent(PlaylistDetailUiEvent.LoadPlaylistDetail("playlist-1"))
         advanceUntilIdle()
 
@@ -110,7 +120,7 @@ class PlaylistDetailViewModelTest {
         coEvery { repository.getPlaylist("playlist-1") } returns Result.success(playlist)
         coEvery { repository.getPlaylistTracks("playlist-1") } returns Result.success(tracks)
 
-        viewModel = PlaylistDetailViewModel(repository, playbackControl, SavedStateHandle())
+        viewModel = PlaylistDetailViewModel(repository, playbackControl, downloadRepository, downloadWorkScheduler, SavedStateHandle())
         viewModel.onEvent(PlaylistDetailUiEvent.LoadPlaylistDetail("playlist-1"))
         advanceUntilIdle()
 
@@ -129,7 +139,7 @@ class PlaylistDetailViewModelTest {
         )
         coEvery { repository.getPlaylistTracks("nonexistent") } returns Result.success(tracks)
 
-        viewModel = PlaylistDetailViewModel(repository, playbackControl, SavedStateHandle())
+        viewModel = PlaylistDetailViewModel(repository, playbackControl, downloadRepository, downloadWorkScheduler, SavedStateHandle())
         viewModel.onEvent(PlaylistDetailUiEvent.LoadPlaylistDetail("nonexistent"))
         advanceUntilIdle()
 

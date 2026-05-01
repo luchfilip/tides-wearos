@@ -36,12 +36,13 @@ class LibraryHubViewModelTest {
         val state = viewModel.uiState.value
         assertTrue(state is LibraryHubUiState.Loaded)
         val items = (state as LibraryHubUiState.Loaded).items
-        assertEquals(5, items.size)
+        assertEquals(6, items.size)
         assertEquals(LibraryItem.Playlists, items[0])
         assertEquals(LibraryItem.Albums, items[1])
         assertEquals(LibraryItem.Tracks, items[2])
         assertEquals(LibraryItem.Recent, items[3])
-        assertEquals(LibraryItem.Settings, items[4])
+        assertEquals(LibraryItem.Downloads, items[4])
+        assertEquals(LibraryItem.Settings, items[5])
     }
 
     @Test
@@ -80,6 +81,16 @@ class LibraryHubViewModelTest {
             viewModel.onEvent(LibraryHubUiEvent.ItemClicked(LibraryItem.Recent))
             advanceUntilIdle()
             assertEquals(LibraryHubUiEffect.NavigateToRecent, awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `clicking Downloads emits NavigateToDownloads`() = runTest {
+        viewModel.uiEffect.test {
+            viewModel.onEvent(LibraryHubUiEvent.ItemClicked(LibraryItem.Downloads))
+            advanceUntilIdle()
+            assertEquals(LibraryHubUiEffect.NavigateToDownloads, awaitItem())
             cancelAndIgnoreRemainingEvents()
         }
     }

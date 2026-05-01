@@ -13,6 +13,7 @@ import androidx.wear.compose.material.Text
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScalingLazyColumnDefaults
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnState
+import com.flintsdk.Flint
 import dev.tidesapp.wearos.core.ui.components.TidesChip
 
 @Composable
@@ -21,10 +22,32 @@ fun LibraryHubScreen(
     onNavigateToAlbums: () -> Unit,
     onNavigateToTracks: () -> Unit,
     onNavigateToRecent: () -> Unit,
+    onNavigateToDownloads: () -> Unit,
     onNavigateToSettings: () -> Unit,
     viewModel: LibraryHubViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    Flint.tools {
+        tool("tap_playlists", "Navigate to My Playlists") {
+            action { viewModel.onEvent(LibraryHubUiEvent.ItemClicked(LibraryItem.Playlists)); null }
+        }
+        tool("tap_albums", "Navigate to My Albums") {
+            action { viewModel.onEvent(LibraryHubUiEvent.ItemClicked(LibraryItem.Albums)); null }
+        }
+        tool("tap_tracks", "Navigate to My Tracks") {
+            action { viewModel.onEvent(LibraryHubUiEvent.ItemClicked(LibraryItem.Tracks)); null }
+        }
+        tool("tap_recent", "Navigate to Recent") {
+            action { viewModel.onEvent(LibraryHubUiEvent.ItemClicked(LibraryItem.Recent)); null }
+        }
+        tool("tap_downloads", "Navigate to Downloads") {
+            action { viewModel.onEvent(LibraryHubUiEvent.ItemClicked(LibraryItem.Downloads)); null }
+        }
+        tool("tap_settings", "Navigate to Settings") {
+            action { viewModel.onEvent(LibraryHubUiEvent.ItemClicked(LibraryItem.Settings)); null }
+        }
+    }
 
     LibraryHubContent(
         uiState = uiState,
@@ -38,6 +61,7 @@ fun LibraryHubScreen(
                 LibraryHubUiEffect.NavigateToAlbums -> onNavigateToAlbums()
                 LibraryHubUiEffect.NavigateToTracks -> onNavigateToTracks()
                 LibraryHubUiEffect.NavigateToRecent -> onNavigateToRecent()
+                LibraryHubUiEffect.NavigateToDownloads -> onNavigateToDownloads()
                 LibraryHubUiEffect.NavigateToSettings -> onNavigateToSettings()
             }
         }

@@ -2,6 +2,7 @@ package dev.tidesapp.wearos.library.ui.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -10,6 +11,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,6 +30,8 @@ import dev.tidesapp.wearos.core.domain.model.HomeFeedSection
 import dev.tidesapp.wearos.core.ui.components.ErrorScreen
 import dev.tidesapp.wearos.core.ui.components.LoadingScreen
 import dev.tidesapp.wearos.core.ui.components.TidesChip
+import com.flintsdk.Flint
+import com.flintsdk.semantics.flintContent
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -40,6 +46,27 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    Flint.tools {
+        tool("navigate_library", "Go to Library hub") {
+            action { onNavigateToLibrary(); null }
+        }
+        tool("navigate_search", "Go to Search") {
+            action { onNavigateToSearch(); null }
+        }
+        tool("navigate_now_playing", "Go to Now Playing") {
+            action { onNavigateToNowPlaying(); null }
+        }
+    }
+
+    Box(modifier = Modifier.height(0.dp).flintContent("screen_state").semantics {
+        text = AnnotatedString(when (uiState) {
+            HomeUiState.Initial -> "initial"
+            HomeUiState.Loading -> "loading"
+            is HomeUiState.Success -> "success"
+            is HomeUiState.Error -> "error"
+        })
+    })
 
     HomeContent(
         uiState = uiState,

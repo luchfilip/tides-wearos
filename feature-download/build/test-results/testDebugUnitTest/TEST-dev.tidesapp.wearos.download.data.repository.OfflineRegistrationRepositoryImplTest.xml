@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.tidesapp.wearos.download.data.repository.OfflineRegistrationRepositoryImplTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-05-01T04:02:29.901Z" hostname="Filips-MacBook-Pro.local" time="0.165">
+  <properties/>
+  <testcase name="getSessionInfo caches clientId and authorized status" classname="dev.tidesapp.wearos.download.data.repository.OfflineRegistrationRepositoryImplTest" time="0.102"/>
+  <testcase name="ensureOfflineAuthorized registers when session not authorized" classname="dev.tidesapp.wearos.download.data.repository.OfflineRegistrationRepositoryImplTest" time="0.028"/>
+  <testcase name="ensureOfflineAuthorized calls API when not cached" classname="dev.tidesapp.wearos.download.data.repository.OfflineRegistrationRepositoryImplTest" time="0.006"/>
+  <testcase name="getSessionInfo wraps API errors in Result failure" classname="dev.tidesapp.wearos.download.data.repository.OfflineRegistrationRepositoryImplTest" time="0.003"/>
+  <testcase name="registerCollectionOffline dispatches to playlist endpoint" classname="dev.tidesapp.wearos.download.data.repository.OfflineRegistrationRepositoryImplTest" time="0.008"/>
+  <testcase name="ensureOfflineAuthorized returns cached state when already authorized" classname="dev.tidesapp.wearos.download.data.repository.OfflineRegistrationRepositoryImplTest" time="0.006"/>
+  <testcase name="registerCollectionOffline throws when device not registered" classname="dev.tidesapp.wearos.download.data.repository.OfflineRegistrationRepositoryImplTest" time="0.004"/>
+  <testcase name="registerCollectionOffline dispatches to album endpoint" classname="dev.tidesapp.wearos.download.data.repository.OfflineRegistrationRepositoryImplTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

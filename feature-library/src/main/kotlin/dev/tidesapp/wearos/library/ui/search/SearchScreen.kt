@@ -4,8 +4,10 @@ import android.app.RemoteInput
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -16,6 +18,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -39,6 +44,8 @@ import dev.tidesapp.wearos.core.domain.model.SearchResult
 import dev.tidesapp.wearos.core.domain.model.TrackItem
 import dev.tidesapp.wearos.core.ui.components.ErrorScreen
 import dev.tidesapp.wearos.core.ui.components.LoadingScreen
+import com.flintsdk.Flint
+import com.flintsdk.semantics.flintContent
 import kotlinx.collections.immutable.ImmutableList
 
 internal const val REMOTE_INPUT_QUERY_KEY = "query_key"
@@ -64,6 +71,64 @@ fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    Flint.tools {
+        tool("search", "Search for music") {
+            param("query", "string", "Search query")
+            action { params ->
+                val query = params["query"]?.toString() ?: return@action null
+                viewModel.onEvent(SearchUiEvent.Search(query))
+                null
+            }
+        }
+        tool("tap_result", "Tap search result by index and type") {
+            param("index", "string", "Result index (0-based)")
+            param("type", "string", "Result type: album, track, playlist")
+            action { params ->
+                val idx = params["index"]?.toString()?.toIntOrNull() ?: return@action null
+                val type = params["type"]?.toString() ?: return@action null
+                val state = viewModel.uiState.value
+                if (state is SearchUiState.Success) {
+                    val result = state.result
+                    when (type) {
+                        "album" -> if (idx in result.albums.indices) {
+                            viewModel.onEvent(SearchUiEvent.ResultClicked(SearchResultType.Album(result.albums[idx].id)))
+                        }
+                        "track" -> if (idx in result.tracks.indices) {
+                            viewModel.onEvent(SearchUiEvent.ResultClicked(SearchResultType.Track(result.tracks[idx])))
+                        }
+                        "playlist" -> if (idx in result.playlists.indices) {
+                            viewModel.onEvent(SearchUiEvent.ResultClicked(SearchResultType.Playlist(result.playlists[idx].id)))
+                        }
+                    }
+                }
+                null
+            }
+        }
+        tool("clear_search", "Clear search results") {
+            action { viewModel.onEvent(SearchUiEvent.ClearSearch); null }
+        }
+    }
+
+    Box(modifier = Modifier.height(0.dp).flintContent("screen_state").semantics {
+        text = AnnotatedString(when (uiState) {
+            SearchUiState.Initial -> "initial"
+            SearchUiState.Loading -> "loading"
+            is SearchUiState.Success -> "success"
+            SearchUiState.Empty -> "empty"
+            is SearchUiState.Error -> "error"
+        })
+    })
+
+    Box(modifier = Modifier.height(0.dp).flintContent("result_counts").semantics {
+        text = AnnotatedString(when (val state = uiState) {
+            is SearchUiState.Success -> {
+                val r = state.result
+                "albums=${r.albums.size},tracks=${r.tracks.size},playlists=${r.playlists.size},artists=${r.artists.size}"
+            }
+            else -> "albums=0,tracks=0,playlists=0,artists=0"
+        })
+    })
 
     SearchContent(
         uiState = uiState,

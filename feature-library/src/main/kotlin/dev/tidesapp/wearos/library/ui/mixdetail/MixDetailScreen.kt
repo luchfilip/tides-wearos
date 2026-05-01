@@ -1,11 +1,17 @@
 package dev.tidesapp.wearos.library.ui.mixdetail
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.material.Chip
@@ -19,6 +25,8 @@ import com.google.android.horologist.compose.layout.rememberResponsiveColumnStat
 import dev.tidesapp.wearos.core.domain.model.TrackItem
 import dev.tidesapp.wearos.core.ui.components.ErrorScreen
 import dev.tidesapp.wearos.core.ui.components.LoadingScreen
+import com.flintsdk.Flint
+import com.flintsdk.semantics.flintContent
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -27,6 +35,49 @@ fun MixDetailScreen(
     viewModel: MixDetailViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    Flint.tools {
+        tool("play_all", "Play all tracks") {
+            action { viewModel.onEvent(MixDetailUiEvent.PlayAll); null }
+        }
+        tool("shuffle_play", "Shuffle play all tracks") {
+            action { viewModel.onEvent(MixDetailUiEvent.ShufflePlay); null }
+        }
+        tool("play_track", "Play track by index (0-based)") {
+            param("index", "string", "Track index")
+            action { params ->
+                val idx = params["index"]?.toString()?.toIntOrNull() ?: return@action null
+                val state = viewModel.uiState.value
+                if (state is MixDetailUiState.Success && idx in state.tracks.indices) {
+                    viewModel.onEvent(MixDetailUiEvent.PlayTrack(state.tracks[idx]))
+                }
+                null
+            }
+        }
+    }
+
+    Box(modifier = Modifier.height(0.dp).flintContent("screen_state").semantics {
+        text = AnnotatedString(when (uiState) {
+            MixDetailUiState.Initial -> "initial"
+            MixDetailUiState.Loading -> "loading"
+            is MixDetailUiState.Success -> "success"
+            is MixDetailUiState.Error -> "error"
+        })
+    })
+
+    Box(modifier = Modifier.height(0.dp).flintContent("mix_title").semantics {
+        text = AnnotatedString(when (val state = uiState) {
+            is MixDetailUiState.Success -> state.header.title
+            else -> ""
+        })
+    })
+
+    Box(modifier = Modifier.height(0.dp).flintContent("track_count").semantics {
+        text = AnnotatedString(when (val state = uiState) {
+            is MixDetailUiState.Success -> state.tracks.size.toString()
+            else -> "0"
+        })
+    })
 
     MixDetailContent(
         uiState = uiState,

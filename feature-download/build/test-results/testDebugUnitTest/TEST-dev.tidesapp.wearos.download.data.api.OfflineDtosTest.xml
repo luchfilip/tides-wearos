@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.tidesapp.wearos.download.data.api.OfflineDtosTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-05-01T04:02:27.804Z" hostname="Filips-MacBook-Pro.local" time="0.063">
+  <properties/>
+  <testcase name="OfflinePlaybackInfoResponse ignores unknown fields" classname="dev.tidesapp.wearos.download.data.api.OfflineDtosTest" time="0.058"/>
+  <testcase name="OfflineClientsResponse deserializes with items" classname="dev.tidesapp.wearos.download.data.api.OfflineDtosTest" time="0.003"/>
+  <testcase name="OfflineClientsResponse defaults when fields are missing" classname="dev.tidesapp.wearos.download.data.api.OfflineDtosTest" time="0.0"/>
+  <testcase name="SessionResponse deserializes from Charles capture JSON" classname="dev.tidesapp.wearos.download.data.api.OfflineDtosTest" time="0.001"/>
+  <testcase name="SessionResponse ignores unknown fields" classname="dev.tidesapp.wearos.download.data.api.OfflineDtosTest" time="0.0"/>
+  <testcase name="SessionClientInfo authorizedForOfflineDate is nullable" classname="dev.tidesapp.wearos.download.data.api.OfflineDtosTest" time="0.0"/>
+  <testcase name="OfflinePlaybackInfoResponse deserializes from Charles capture JSON" classname="dev.tidesapp.wearos.download.data.api.OfflineDtosTest" time="0.001"/>
+  <testcase name="SessionResponse defaults when fields are missing" classname="dev.tidesapp.wearos.download.data.api.OfflineDtosTest" time="0.0"/>
+  <testcase name="OfflinePlaybackInfoResponse defaults when fields are missing" classname="dev.tidesapp.wearos.download.data.api.OfflineDtosTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

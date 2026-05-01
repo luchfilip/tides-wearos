@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-05-01T04:02:29.356Z" hostname="Filips-MacBook-Pro.local" time="0.264">
+  <properties/>
+  <testcase name="markTrackFailed updates track state and recalculates collection" classname="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" time="0.126"/>
+  <testcase name="markTrackCompleted updates track and recalculates collection progress" classname="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" time="0.008"/>
+  <testcase name="deleteTrack removes entity" classname="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" time="0.004"/>
+  <testcase name="getDownloadedTrack returns domain model" classname="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" time="0.002"/>
+  <testcase name="isTrackDownloaded delegates to dao" classname="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" time="0.004"/>
+  <testcase name="getExpiredTracks delegates to dao and maps to domain" classname="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" time="0.073"/>
+  <testcase name="getStorageInfo combines dao flows with settings limit" classname="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" time="0.017"/>
+  <testcase name="markTrackCompleted sets collection state to COMPLETED when all tracks done" classname="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" time="0.007"/>
+  <testcase name="getPendingTracksForCollection delegates to dao and maps to domain" classname="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" time="0.002"/>
+  <testcase name="getDownloadedTracksForCollection maps entities to domain" classname="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" time="0.003"/>
+  <testcase name="getTracksNeedingRevalidation delegates to dao and maps to domain" classname="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" time="0.002"/>
+  <testcase name="getDownloadedCollections maps entities to domain" classname="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" time="0.003"/>
+  <testcase name="isTrackDownloaded returns false for missing track" classname="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" time="0.001"/>
+  <testcase name="getDownloadedTrack returns null for missing track" classname="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" time="0.002"/>
+  <testcase name="queueCollectionDownload creates collection and track entities" classname="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" time="0.004"/>
+  <testcase name="deleteCollection removes track entities and collection entity" classname="dev.tidesapp.wearos.download.data.repository.DownloadRepositoryImplTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

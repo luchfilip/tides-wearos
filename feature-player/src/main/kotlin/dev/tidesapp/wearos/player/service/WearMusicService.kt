@@ -50,6 +50,7 @@ class WearMusicService : MediaSessionService() {
         )
         val playbackApi = entryPoint.tidesPlaybackApi()
         val credentialsProvider = entryPoint.credentialsProvider()
+        val downloadRepository = entryPoint.downloadRepository()
         val ioDispatcher = entryPoint.ioDispatcher()
 
         val exoPlayer = ExoPlayer.Builder(this)
@@ -72,6 +73,7 @@ class WearMusicService : MediaSessionService() {
             playbackApi = playbackApi,
             credentialsProvider = credentialsProvider,
             json = Json { ignoreUnknownKeys = true },
+            downloadRepository = downloadRepository,
         )
 
         mediaSession = MediaSession.Builder(this, exoPlayer)
@@ -123,6 +125,7 @@ class WearMusicService : MediaSessionService() {
     interface WearMusicServiceEntryPoint {
         fun tidesPlaybackApi(): TidesPlaybackApi
         fun credentialsProvider(): CredentialsProvider
+        fun downloadRepository(): dev.tidesapp.wearos.download.domain.repository.DownloadRepository
 
         @IoDispatcher
         fun ioDispatcher(): CoroutineDispatcher
@@ -143,12 +146,18 @@ internal class TrackResolver(
     private val playbackApi: TidesPlaybackApi,
     private val credentialsProvider: CredentialsProvider,
     private val json: Json = Json { ignoreUnknownKeys = true },
+    private val downloadRepository: dev.tidesapp.wearos.download.domain.repository.DownloadRepository? = null,
 ) {
 
     suspend fun resolve(stub: MediaItem): MediaItem {
         val trackId = stub.mediaId
         if (trackId.isBlank()) return stub
 
+        // Check local download first
+        val localItem = resolveFromLocal(trackId, stub)
+        if (localItem != null) return localItem
+
+        // Fall back to streaming
         val token = getBearerToken()
         val playbackInfo = playbackApi.getTrackPlaybackInfo(token, trackId)
         val isDash = playbackInfo.manifestMimeType.contains("dash", ignoreCase = true)
@@ -168,6 +177,30 @@ internal class TrackResolver(
             )
             builder.setUri(audioUrl).build()
         }
+    }
+
+    private suspend fun resolveFromLocal(trackId: String, stub: MediaItem): MediaItem? {
+        val repo = downloadRepository ?: return null
+        val trackIdLong = trackId.toLongOrNull() ?: return null
+        val downloaded = repo.getDownloadedTrack(trackIdLong) ?: return null
+
+        // Only use local file if completed and not expired
+        if (downloaded.state != dev.tidesapp.wearos.download.domain.model.DownloadState.COMPLETED) {
+            return null
+        }
+        if (downloaded.offlineValidUntil > 0 &&
+            downloaded.offlineValidUntil < System.currentTimeMillis() / 1000
+        ) {
+            return null
+        }
+
+        // Verify file exists on disk
+        val file = java.io.File(downloaded.filePath)
+        if (!file.exists()) return null
+
+        return stub.buildUpon()
+            .setUri(android.net.Uri.fromFile(file).toString())
+            .build()
     }
 
     private suspend fun getBearerToken(): String {

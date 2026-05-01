@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.tidesapp.wearos.download.data.download.TrackDownloaderTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-05-01T04:02:28.916Z" hostname="Filips-MacBook-Pro.local" time="0.397">
+  <properties/>
+  <testcase name="downloadTrack parses manifest from API response" classname="dev.tidesapp.wearos.download.data.download.TrackDownloaderTest" time="0.248"/>
+  <testcase name="downloadTrack reports progress correctly" classname="dev.tidesapp.wearos.download.data.download.TrackDownloaderTest" time="0.023"/>
+  <testcase name="downloadTrack produces correct file path" classname="dev.tidesapp.wearos.download.data.download.TrackDownloaderTest" time="0.019"/>
+  <testcase name="downloadTrack deletes partial file on failure" classname="dev.tidesapp.wearos.download.data.download.TrackDownloaderTest" time="0.027"/>
+  <testcase name="downloadTrack throws on credential failure" classname="dev.tidesapp.wearos.download.data.download.TrackDownloaderTest" time="0.019"/>
+  <testcase name="downloadTrack downloads init segment first then media segments in order" classname="dev.tidesapp.wearos.download.data.download.TrackDownloaderTest" time="0.03"/>
+  <testcase name="downloadTrack returns correct result metadata" classname="dev.tidesapp.wearos.download.data.download.TrackDownloaderTest" time="0.015"/>
+  <testcase name="downloadTrack calls API with correct params" classname="dev.tidesapp.wearos.download.data.download.TrackDownloaderTest" time="0.016"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

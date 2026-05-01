@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.tidesapp.wearos.download.data.repository.DownloadStorageRepositoryImplTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-05-01T04:02:29.623Z" hostname="Filips-MacBook-Pro.local" time="0.276">
+  <properties/>
+  <testcase name="getDownloadDirectory returns existing dir" classname="dev.tidesapp.wearos.download.data.repository.DownloadStorageRepositoryImplTest" time="0.241"/>
+  <testcase name="clearAllDownloads deletes directory contents" classname="dev.tidesapp.wearos.download.data.repository.DownloadStorageRepositoryImplTest" time="0.005"/>
+  <testcase name="clearAllDownloads handles non-existent directory" classname="dev.tidesapp.wearos.download.data.repository.DownloadStorageRepositoryImplTest" time="0.002"/>
+  <testcase name="getDownloadDirectory creates dir if not exists" classname="dev.tidesapp.wearos.download.data.repository.DownloadStorageRepositoryImplTest" time="0.003"/>
+  <testcase name="hasSpaceForTrack returns true when under limit" classname="dev.tidesapp.wearos.download.data.repository.DownloadStorageRepositoryImplTest" time="0.004"/>
+  <testcase name="getStorageInfo combines dao and settings limit" classname="dev.tidesapp.wearos.download.data.repository.DownloadStorageRepositoryImplTest" time="0.008"/>
+  <testcase name="getStorageInfo updates when limit changes" classname="dev.tidesapp.wearos.download.data.repository.DownloadStorageRepositoryImplTest" time="0.004"/>
+  <testcase name="hasSpaceForTrack returns false when over limit" classname="dev.tidesapp.wearos.download.data.repository.DownloadStorageRepositoryImplTest" time="0.003"/>
+  <testcase name="clearAllDownloads deletes database entities and directory contents" classname="dev.tidesapp.wearos.download.data.repository.DownloadStorageRepositoryImplTest" time="0.003"/>
+  <testcase name="hasSpaceForTrack returns true when exactly at limit" classname="dev.tidesapp.wearos.download.data.repository.DownloadStorageRepositoryImplTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

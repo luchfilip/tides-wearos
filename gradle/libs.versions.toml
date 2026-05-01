@@ -123,6 +123,7 @@ kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutine
 
 # WorkManager
 work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntime" }
+work-testing = { module = "androidx.work:work-testing", version.ref = "workRuntime" }
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }

@@ -3,6 +3,8 @@ package dev.tidesapp.wearos.settings.data.repository
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import dev.tidesapp.wearos.core.domain.model.AudioQualityPreference
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -60,5 +62,42 @@ class SettingsRepositoryImplTest {
         repository.setWifiOnly(true)
         val wifiOnly = repository.isWifiOnly().first()
         assertTrue(wifiOnly)
+    }
+
+    @Test
+    fun `getDownloadQuality returns HIGH by default`() = testScope.runTest {
+        val quality = repository.getDownloadQuality().first()
+        assertEquals(AudioQualityPreference.HIGH, quality)
+    }
+
+    @Test
+    fun `setDownloadQuality persists and emits new value`() = testScope.runTest {
+        repository.setDownloadQuality(AudioQualityPreference.LOSSLESS)
+        val quality = repository.getDownloadQuality().first()
+        assertEquals(AudioQualityPreference.LOSSLESS, quality)
+    }
+
+    @Test
+    fun `getStorageLimitBytes returns 1GB by default`() = testScope.runTest {
+        val limit = repository.getStorageLimitBytes().first()
+        assertEquals(1_073_741_824L, limit)
+    }
+
+    @Test
+    fun `setStorageLimitBytes persists and emits new value`() = testScope.runTest {
+        val twoGb = 2_147_483_648L
+        repository.setStorageLimitBytes(twoGb)
+        val limit = repository.getStorageLimitBytes().first()
+        assertEquals(twoGb, limit)
+    }
+
+    @Test
+    fun `getDownloadQuality handles invalid stored value gracefully`() = testScope.runTest {
+        // Write an invalid value directly to DataStore
+        dataStore.edit { preferences ->
+            preferences[stringPreferencesKey("download_quality")] = "INVALID_VALUE"
+        }
+        val quality = repository.getDownloadQuality().first()
+        assertEquals(AudioQualityPreference.HIGH, quality)
     }
 }

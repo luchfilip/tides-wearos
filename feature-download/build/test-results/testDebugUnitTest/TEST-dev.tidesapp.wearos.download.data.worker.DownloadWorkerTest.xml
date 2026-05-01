@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.tidesapp.wearos.download.data.worker.DownloadWorkerTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-05-01T04:02:30.130Z" hostname="Filips-MacBook-Pro.local" time="0.267">
+  <properties/>
+  <testcase name="doWork falls back to stream mode when offline authorization fails" classname="dev.tidesapp.wearos.download.data.worker.DownloadWorkerTest" time="0.146"/>
+  <testcase name="doWork downloads all pending tracks and marks completed" classname="dev.tidesapp.wearos.download.data.worker.DownloadWorkerTest" time="0.024"/>
+  <testcase name="doWork falls back to stream mode when collection registration fails" classname="dev.tidesapp.wearos.download.data.worker.DownloadWorkerTest" time="0.017"/>
+  <testcase name="doWork returns failure for missing collection ID" classname="dev.tidesapp.wearos.download.data.worker.DownloadWorkerTest" time="0.002"/>
+  <testcase name="doWork skips track when storage insufficient" classname="dev.tidesapp.wearos.download.data.worker.DownloadWorkerTest" time="0.015"/>
+  <testcase name="doWork uses download quality from settings" classname="dev.tidesapp.wearos.download.data.worker.DownloadWorkerTest" time="0.012"/>
+  <testcase name="doWork marks track failed when download throws and continues" classname="dev.tidesapp.wearos.download.data.worker.DownloadWorkerTest" time="0.015"/>
+  <testcase name="doWork marks track failed with fallback message on null error" classname="dev.tidesapp.wearos.download.data.worker.DownloadWorkerTest" time="0.008"/>
+  <testcase name="doWork processes tracks in order" classname="dev.tidesapp.wearos.download.data.worker.DownloadWorkerTest" time="0.017"/>
+  <testcase name="doWork returns failure for missing collection type" classname="dev.tidesapp.wearos.download.data.worker.DownloadWorkerTest" time="0.002"/>
+  <testcase name="doWork succeeds with empty pending tracks list" classname="dev.tidesapp.wearos.download.data.worker.DownloadWorkerTest" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

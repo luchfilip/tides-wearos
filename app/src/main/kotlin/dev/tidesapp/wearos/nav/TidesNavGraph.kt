@@ -11,6 +11,7 @@ import androidx.navigation.navArgument
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
+import com.flintsdk.Flint
 import dev.tidesapp.wearos.auth.ui.login.LoginScreen
 import dev.tidesapp.wearos.library.ui.albumdetail.AlbumDetailScreen
 import dev.tidesapp.wearos.library.ui.albums.AlbumsScreen
@@ -24,6 +25,9 @@ import dev.tidesapp.wearos.library.ui.search.SearchScreen
 import dev.tidesapp.wearos.library.ui.tracks.TracksScreen
 import dev.tidesapp.wearos.library.ui.viewall.ViewAllScreen
 import dev.tidesapp.wearos.player.ui.nowplaying.NowPlayingScreen
+import dev.tidesapp.wearos.download.domain.model.CollectionType
+import dev.tidesapp.wearos.download.ui.downloadmanager.DownloadManagerScreen
+import dev.tidesapp.wearos.download.ui.downloads.DownloadsScreen
 import dev.tidesapp.wearos.settings.ui.settings.SettingsScreen
 
 object Routes {
@@ -40,6 +44,8 @@ object Routes {
     const val VIEW_ALL = "view_all?path={path}&title={title}"
     const val SEARCH = "search"
     const val NOW_PLAYING = "now_playing"
+    const val DOWNLOADS = "downloads"
+    const val DOWNLOAD_MANAGER = "download_manager"
     const val SETTINGS = "settings"
 
     fun albumDetail(albumId: String) = "album_detail/$albumId"
@@ -91,6 +97,7 @@ fun TidesNavGraph() {
         startDestination = Routes.LOGIN,
     ) {
         composable(Routes.LOGIN) {
+            Flint.screen("Login")
             LoginScreen(
                 onNavigateToHome = {
                     navController.navigate(Routes.LIBRARY_HOME) {
@@ -101,6 +108,7 @@ fun TidesNavGraph() {
         }
 
         composable(Routes.LIBRARY_HOME) {
+            Flint.screen("Home")
             HomeScreen(
                 onNavigateToAlbum = { albumId ->
                     navController.navigate(Routes.albumDetail(albumId))
@@ -127,6 +135,7 @@ fun TidesNavGraph() {
         }
 
         composable(Routes.LIBRARY_HUB) {
+            Flint.screen("Library")
             LibraryHubScreen(
                 onNavigateToPlaylists = {
                     navController.navigate(Routes.PLAYLISTS)
@@ -140,6 +149,9 @@ fun TidesNavGraph() {
                 onNavigateToRecent = {
                     navController.navigate(Routes.RECENT)
                 },
+                onNavigateToDownloads = {
+                    navController.navigate(Routes.DOWNLOADS)
+                },
                 onNavigateToSettings = {
                     navController.navigate(Routes.SETTINGS)
                 },
@@ -147,6 +159,7 @@ fun TidesNavGraph() {
         }
 
         composable(Routes.TRACKS) {
+            Flint.screen("Tracks")
             TracksScreen(
                 onNavigateToNowPlaying = {
                     navController.navigate(Routes.NOW_PLAYING)
@@ -155,6 +168,7 @@ fun TidesNavGraph() {
         }
 
         composable(Routes.RECENT) {
+            Flint.screen("Recent")
             RecentScreen(
                 onNavigateToNowPlaying = {
                     navController.navigate(Routes.NOW_PLAYING)
@@ -163,6 +177,7 @@ fun TidesNavGraph() {
         }
 
         composable(Routes.ALBUMS) {
+            Flint.screen("Albums")
             AlbumsScreen(
                 onNavigateToAlbumDetail = { albumId ->
                     navController.navigate(Routes.albumDetail(albumId))
@@ -171,6 +186,7 @@ fun TidesNavGraph() {
         }
 
         composable(Routes.PLAYLISTS) {
+            Flint.screen("Playlists")
             PlaylistsScreen(
                 onNavigateToPlaylistDetail = { playlistId ->
                     navController.navigate(Routes.playlistDetail(playlistId))
@@ -182,6 +198,7 @@ fun TidesNavGraph() {
             route = Routes.ALBUM_DETAIL,
             arguments = listOf(navArgument("albumId") { type = NavType.StringType }),
         ) { backStackEntry ->
+            Flint.screen("AlbumDetail")
             val albumId = backStackEntry.arguments?.getString("albumId").orEmpty()
             AlbumDetailScreen(
                 albumId = albumId,
@@ -195,6 +212,7 @@ fun TidesNavGraph() {
             route = Routes.PLAYLIST_DETAIL,
             arguments = listOf(navArgument("playlistId") { type = NavType.StringType }),
         ) { backStackEntry ->
+            Flint.screen("PlaylistDetail")
             val playlistId = backStackEntry.arguments?.getString("playlistId").orEmpty()
             PlaylistDetailScreen(
                 playlistId = playlistId,
@@ -225,6 +243,7 @@ fun TidesNavGraph() {
                 },
             ),
         ) {
+            Flint.screen("MixDetail")
             MixDetailScreen(
                 onNavigateToNowPlaying = {
                     navController.navigate(Routes.NOW_PLAYING)
@@ -247,6 +266,7 @@ fun TidesNavGraph() {
                 },
             ),
         ) {
+            Flint.screen("ViewAll")
             ViewAllScreen(
                 onNavigateToAlbum = { albumId ->
                     navController.navigate(Routes.albumDetail(albumId))
@@ -261,6 +281,7 @@ fun TidesNavGraph() {
         }
 
         composable(Routes.SEARCH) {
+            Flint.screen("Search")
             SearchScreen(
                 onNavigateToAlbumDetail = { albumId ->
                     navController.navigate(Routes.albumDetail(albumId))
@@ -275,6 +296,7 @@ fun TidesNavGraph() {
         }
 
         composable(Routes.NOW_PLAYING) {
+            Flint.screen("NowPlaying")
             NowPlayingScreen(
                 onNavigateBack = {
                     navController.popBackStack()
@@ -282,7 +304,28 @@ fun TidesNavGraph() {
             )
         }
 
+        composable(Routes.DOWNLOADS) {
+            Flint.screen("Downloads")
+            DownloadsScreen(
+                onNavigateToCollection = { collectionId, type ->
+                    when (type) {
+                        CollectionType.ALBUM -> navController.navigate(Routes.albumDetail(collectionId))
+                        CollectionType.PLAYLIST -> navController.navigate(Routes.playlistDetail(collectionId))
+                    }
+                },
+                onNavigateToDownloadManager = {
+                    navController.navigate(Routes.DOWNLOAD_MANAGER)
+                },
+            )
+        }
+
+        composable(Routes.DOWNLOAD_MANAGER) {
+            Flint.screen("DownloadManager")
+            DownloadManagerScreen()
+        }
+
         composable(Routes.SETTINGS) {
+            Flint.screen("Settings")
             SettingsScreen(
                 onNavigateToLogin = {
                     navController.navigate(Routes.LOGIN) {

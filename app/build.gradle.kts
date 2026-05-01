@@ -104,6 +104,7 @@ dependencies {
     implementation(project(":feature-player"))
     implementation(project(":feature-library"))
     implementation(project(":feature-settings"))
+    implementation(project(":feature-download"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
@@ -122,8 +123,14 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
+    implementation(libs.work.runtime.ktx)
 
     implementation(libs.kotlinx.serialization.json)
+
+    implementation("com.flintsdk:runtime:1.3.0")
+    ksp("com.flintsdk:compiler:1.3.0")
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 

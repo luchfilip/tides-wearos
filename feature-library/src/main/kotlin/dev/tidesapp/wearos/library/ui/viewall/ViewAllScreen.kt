@@ -1,12 +1,18 @@
 package dev.tidesapp.wearos.library.ui.viewall
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.material.MaterialTheme
@@ -19,6 +25,8 @@ import dev.tidesapp.wearos.core.domain.model.ViewAllPage
 import dev.tidesapp.wearos.core.ui.components.ErrorScreen
 import dev.tidesapp.wearos.core.ui.components.LoadingScreen
 import dev.tidesapp.wearos.core.ui.components.TidesChip
+import com.flintsdk.Flint
+import com.flintsdk.semantics.flintContent
 import kotlinx.collections.immutable.persistentListOf
 
 @Composable
@@ -29,6 +37,45 @@ fun ViewAllScreen(
     viewModel: ViewAllViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    Flint.tools {
+        tool("tap_item", "Tap item by index (0-based)") {
+            param("index", "string", "Item index")
+            action { params ->
+                val idx = params["index"]?.toString()?.toIntOrNull() ?: return@action null
+                val state = viewModel.uiState.value
+                if (state is ViewAllUiState.Success && idx in state.page.items.indices) {
+                    viewModel.onEvent(ViewAllUiEvent.ItemClicked(state.page.items[idx]))
+                }
+                null
+            }
+        }
+    }
+
+    Box(modifier = Modifier.height(0.dp).flintContent("screen_state").semantics {
+        text = AnnotatedString(when (uiState) {
+            ViewAllUiState.Initial -> "initial"
+            is ViewAllUiState.Loading -> "loading"
+            is ViewAllUiState.Success -> "success"
+            is ViewAllUiState.Error -> "error"
+        })
+    })
+
+    Box(modifier = Modifier.height(0.dp).flintContent("title").semantics {
+        text = AnnotatedString(when (val state = uiState) {
+            is ViewAllUiState.Success -> state.page.title
+            is ViewAllUiState.Loading -> state.headerTitle
+            is ViewAllUiState.Error -> state.headerTitle
+            else -> ""
+        })
+    })
+
+    Box(modifier = Modifier.height(0.dp).flintContent("item_count").semantics {
+        text = AnnotatedString(when (val state = uiState) {
+            is ViewAllUiState.Success -> state.page.items.size.toString()
+            else -> "0"
+        })
+    })
 
     ViewAllContent(
         uiState = uiState,

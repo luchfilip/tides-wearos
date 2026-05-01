@@ -1,7 +1,9 @@
 package dev.tidesapp.wearos.library.ui.playlists
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -9,6 +11,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -24,6 +29,8 @@ import com.google.android.horologist.compose.layout.rememberResponsiveColumnStat
 import dev.tidesapp.wearos.core.domain.model.PlaylistItem
 import dev.tidesapp.wearos.core.ui.components.ErrorScreen
 import dev.tidesapp.wearos.core.ui.components.LoadingScreen
+import com.flintsdk.Flint
+import com.flintsdk.semantics.flintContent
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -32,6 +39,46 @@ fun PlaylistsScreen(
     viewModel: PlaylistsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    Flint.tools {
+        tool("tap_playlist", "Tap playlist by index (0-based)") {
+            param("index", "string", "Playlist index")
+            action { params ->
+                val idx = params["index"]?.toString()?.toIntOrNull() ?: return@action null
+                val state = viewModel.uiState.value
+                val playlists = when (state) {
+                    is PlaylistsUiState.Success -> state.playlists
+                    is PlaylistsUiState.Refreshing -> state.playlists
+                    else -> return@action null
+                }
+                if (idx in playlists.indices) {
+                    viewModel.onEvent(PlaylistsUiEvent.PlaylistClicked(playlists[idx]))
+                }
+                null
+            }
+        }
+        tool("refresh_playlists", "Pull to refresh playlists") {
+            action { viewModel.onEvent(PlaylistsUiEvent.RetryLoad); null }
+        }
+    }
+
+    Box(modifier = Modifier.height(0.dp).flintContent("screen_state").semantics {
+        text = AnnotatedString(when (uiState) {
+            PlaylistsUiState.Initial -> "initial"
+            PlaylistsUiState.Loading -> "loading"
+            is PlaylistsUiState.Success -> "success"
+            is PlaylistsUiState.Refreshing -> "refreshing"
+            is PlaylistsUiState.Error -> "error"
+        })
+    })
+
+    Box(modifier = Modifier.height(0.dp).flintContent("playlist_count").semantics {
+        text = AnnotatedString(when (val state = uiState) {
+            is PlaylistsUiState.Success -> state.playlists.size.toString()
+            is PlaylistsUiState.Refreshing -> state.playlists.size.toString()
+            else -> "0"
+        })
+    })
 
     PlaylistsContent(
         uiState = uiState,

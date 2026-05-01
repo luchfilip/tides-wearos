@@ -1,0 +1,1 @@
+-keep,allowobfuscation,allowshrinking class dev.tidesapp.wearos.download.ui.downloadmanager.DownloadManagerViewModel

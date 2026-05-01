@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.tidesapp.wearos.download.data.worker.RevalidationWorkerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-05-01T04:02:30.398Z" hostname="Filips-MacBook-Pro.local" time="0.035">
+  <properties/>
+  <testcase name="network errors during revalidation are silently skipped" classname="dev.tidesapp.wearos.download.data.worker.RevalidationWorkerTest" time="0.01"/>
+  <testcase name="tracks needing revalidation with matching hash get updated timestamps" classname="dev.tidesapp.wearos.download.data.worker.RevalidationWorkerTest" time="0.009"/>
+  <testcase name="expired tracks are marked failed" classname="dev.tidesapp.wearos.download.data.worker.RevalidationWorkerTest" time="0.004"/>
+  <testcase name="tracks needing revalidation with different hash get marked for re-download" classname="dev.tidesapp.wearos.download.data.worker.RevalidationWorkerTest" time="0.007"/>
+  <testcase name="returns RETRY when credentials fail" classname="dev.tidesapp.wearos.download.data.worker.RevalidationWorkerTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

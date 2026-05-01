@@ -1,6 +1,7 @@
 package dev.tidesapp.wearos.auth.ui.login
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -20,6 +24,8 @@ import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
+import com.flintsdk.Flint
+import com.flintsdk.semantics.flintContent
 
 @Composable
 fun LoginScreen(
@@ -27,6 +33,25 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    Flint.tools {
+        tool("start_login", "Start device code login flow") {
+            action { viewModel.onEvent(LoginUiEvent.StartLogin); null }
+        }
+        tool("retry_login", "Retry login after error") {
+            action { viewModel.onEvent(LoginUiEvent.RetryLogin); null }
+        }
+    }
+
+    Box(modifier = Modifier.height(0.dp).flintContent("login_state").semantics {
+        text = AnnotatedString(when (uiState) {
+            LoginUiState.Initial -> "initial"
+            LoginUiState.Loading -> "loading"
+            is LoginUiState.ShowingCode -> "showing_code"
+            LoginUiState.Success -> "success"
+            is LoginUiState.Error -> "error"
+        })
+    })
 
     LoginContent(
         uiState = uiState,
@@ -133,6 +158,7 @@ private fun DeviceCodeContent(
             style = MaterialTheme.typography.title1,
             color = MaterialTheme.colors.onSurface,
             textAlign = TextAlign.Center,
+            modifier = Modifier.flintContent("user_code"),
         )
         Spacer(modifier = Modifier.height(12.dp))
         CircularProgressIndicator(

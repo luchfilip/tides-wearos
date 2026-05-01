@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.tidesapp.wearos.download.data.db.EntityMappersTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-05-01T04:02:27.868Z" hostname="Filips-MacBook-Pro.local" time="0.002">
+  <properties/>
+  <testcase name="track entity round-trip preserves all fields" classname="dev.tidesapp.wearos.download.data.db.EntityMappersTest" time="0.001"/>
+  <testcase name="DownloadedTrackEntity maps to domain correctly" classname="dev.tidesapp.wearos.download.data.db.EntityMappersTest" time="0.0"/>
+  <testcase name="DownloadedCollection maps to entity correctly" classname="dev.tidesapp.wearos.download.data.db.EntityMappersTest" time="0.0"/>
+  <testcase name="collection entity round-trip preserves all fields" classname="dev.tidesapp.wearos.download.data.db.EntityMappersTest" time="0.0"/>
+  <testcase name="DownloadedTrack maps to entity correctly" classname="dev.tidesapp.wearos.download.data.db.EntityMappersTest" time="0.0"/>
+  <testcase name="DownloadedCollectionEntity maps to domain correctly" classname="dev.tidesapp.wearos.download.data.db.EntityMappersTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

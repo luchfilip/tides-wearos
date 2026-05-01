@@ -30,6 +30,7 @@ sealed interface LibraryHubUiEffect {
     data object NavigateToAlbums : LibraryHubUiEffect
     data object NavigateToTracks : LibraryHubUiEffect
     data object NavigateToRecent : LibraryHubUiEffect
+    data object NavigateToDownloads : LibraryHubUiEffect
     data object NavigateToSettings : LibraryHubUiEffect
 }
 
@@ -43,6 +44,7 @@ class LibraryHubViewModel @Inject constructor() : ViewModel() {
                 LibraryItem.Albums,
                 LibraryItem.Tracks,
                 LibraryItem.Recent,
+                LibraryItem.Downloads,
                 LibraryItem.Settings,
             ),
         ),
@@ -65,6 +67,7 @@ class LibraryHubViewModel @Inject constructor() : ViewModel() {
                 LibraryItem.Albums -> LibraryHubUiEffect.NavigateToAlbums
                 LibraryItem.Tracks -> LibraryHubUiEffect.NavigateToTracks
                 LibraryItem.Recent -> LibraryHubUiEffect.NavigateToRecent
+                LibraryItem.Downloads -> LibraryHubUiEffect.NavigateToDownloads
                 LibraryItem.Settings -> LibraryHubUiEffect.NavigateToSettings
             }
             _uiEffect.send(effect)

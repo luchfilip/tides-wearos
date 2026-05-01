@@ -1,0 +1,28 @@
+package dev.tidesapp.wearos.download.ui.downloads;
+
+import dagger.internal.DaggerGenerated;
+import dagger.internal.IdentifierNameString;
+import dagger.internal.KeepFieldType;
+import javax.annotation.processing.Generated;
+
+@IdentifierNameString
+@DaggerGenerated
+@Generated(
+    value = "dagger.internal.codegen.ComponentProcessor",
+    comments = "https://dagger.dev"
+)
+@SuppressWarnings({
+    "unchecked",
+    "rawtypes",
+    "KotlinInternal",
+    "KotlinInternalInJava",
+    "cast",
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
+})
+public final class DownloadsViewModel_HiltModules_KeyModule_Provide_LazyMapKey {
+  @KeepFieldType
+  static DownloadsViewModel keepFieldType;
+
+  public static String lazyClassKeyName = "dev.tidesapp.wearos.download.ui.downloads.DownloadsViewModel";
+}

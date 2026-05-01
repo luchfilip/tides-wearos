@@ -1,6 +1,7 @@
 package dev.tidesapp.wearos.player.ui.nowplaying
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -26,6 +30,8 @@ import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
+import com.flintsdk.Flint
+import com.flintsdk.semantics.flintContent
 import dev.tidesapp.wearos.player.R
 
 @Composable
@@ -34,6 +40,53 @@ fun NowPlayingScreen(
     viewModel: NowPlayingViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    Flint.tools {
+        tool("play_pause", "Toggle play/pause") {
+            action { viewModel.onEvent(NowPlayingUiEvent.PlayPause); null }
+        }
+        tool("skip_next", "Skip to next track") {
+            action { viewModel.onEvent(NowPlayingUiEvent.SkipNext); null }
+        }
+        tool("skip_previous", "Skip to previous track") {
+            action { viewModel.onEvent(NowPlayingUiEvent.SkipPrevious); null }
+        }
+    }
+
+    Box(modifier = Modifier.height(0.dp).flintContent("track_title").semantics {
+        text = AnnotatedString(when (val state = uiState) {
+            is NowPlayingUiState.Playing -> state.trackTitle
+            else -> ""
+        })
+    })
+
+    Box(modifier = Modifier.height(0.dp).flintContent("artist_name").semantics {
+        text = AnnotatedString(when (val state = uiState) {
+            is NowPlayingUiState.Playing -> state.artistName
+            else -> ""
+        })
+    })
+
+    Box(modifier = Modifier.height(0.dp).flintContent("is_playing").semantics {
+        text = AnnotatedString(when (val state = uiState) {
+            is NowPlayingUiState.Playing -> state.isPlaying.toString()
+            else -> "false"
+        })
+    })
+
+    Box(modifier = Modifier.height(0.dp).flintContent("progress_ms").semantics {
+        text = AnnotatedString(when (val state = uiState) {
+            is NowPlayingUiState.Playing -> state.progressMs.toString()
+            else -> "0"
+        })
+    })
+
+    Box(modifier = Modifier.height(0.dp).flintContent("duration_ms").semantics {
+        text = AnnotatedString(when (val state = uiState) {
+            is NowPlayingUiState.Playing -> state.durationMs.toString()
+            else -> "0"
+        })
+    })
 
     LaunchedEffect(Unit) {
         viewModel.onEvent(NowPlayingUiEvent.ObservePlayerState)

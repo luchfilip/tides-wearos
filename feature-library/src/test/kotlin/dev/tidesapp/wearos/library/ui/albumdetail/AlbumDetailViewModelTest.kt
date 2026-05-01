@@ -5,10 +5,14 @@ import app.cash.turbine.test
 import dev.tidesapp.wearos.core.domain.model.AlbumItem
 import dev.tidesapp.wearos.core.domain.model.TrackItem
 import dev.tidesapp.wearos.core.domain.playback.PlaybackControl
+import dev.tidesapp.wearos.download.data.worker.DownloadWorkScheduler
+import dev.tidesapp.wearos.download.domain.repository.DownloadRepository
 import dev.tidesapp.wearos.library.domain.repository.AlbumRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -27,6 +31,8 @@ class AlbumDetailViewModelTest {
 
     private lateinit var repository: AlbumRepository
     private lateinit var playbackControl: PlaybackControl
+    private lateinit var downloadRepository: DownloadRepository
+    private lateinit var downloadWorkScheduler: DownloadWorkScheduler
     private lateinit var viewModel: AlbumDetailViewModel
     private val testDispatcher = StandardTestDispatcher()
 
@@ -37,6 +43,10 @@ class AlbumDetailViewModelTest {
         playbackControl = mockk {
             coEvery { playTracks(any(), any()) } returns Result.success(Unit)
         }
+        downloadRepository = mockk {
+            every { getDownloadedCollections() } returns flowOf(emptyList())
+        }
+        downloadWorkScheduler = mockk(relaxed = true)
     }
 
     @After
@@ -46,7 +56,7 @@ class AlbumDetailViewModelTest {
 
     @Test
     fun `initial state is Initial`() {
-        viewModel = AlbumDetailViewModel(repository, playbackControl, SavedStateHandle())
+        viewModel = AlbumDetailViewModel(repository, playbackControl, downloadRepository, downloadWorkScheduler, SavedStateHandle())
         assertEquals(AlbumDetailUiState.Initial, viewModel.uiState.value)
     }
 
@@ -57,7 +67,7 @@ class AlbumDetailViewModelTest {
         coEvery { repository.getAlbumDetail("album-1") } returns Result.success(album)
         coEvery { repository.getAlbumTracks("album-1") } returns Result.success(tracks)
 
-        viewModel = AlbumDetailViewModel(repository, playbackControl, SavedStateHandle())
+        viewModel = AlbumDetailViewModel(repository, playbackControl, downloadRepository, downloadWorkScheduler, SavedStateHandle())
         viewModel.onEvent(AlbumDetailUiEvent.LoadAlbumDetail("album-1"))
         advanceUntilIdle()
 
@@ -77,7 +87,7 @@ class AlbumDetailViewModelTest {
             RuntimeException("Not found")
         )
 
-        viewModel = AlbumDetailViewModel(repository, playbackControl, SavedStateHandle())
+        viewModel = AlbumDetailViewModel(repository, playbackControl, downloadRepository, downloadWorkScheduler, SavedStateHandle())
         viewModel.onEvent(AlbumDetailUiEvent.LoadAlbumDetail("album-1"))
         advanceUntilIdle()
 
@@ -93,7 +103,7 @@ class AlbumDetailViewModelTest {
         coEvery { repository.getAlbumDetail("album-1") } returns Result.success(album)
         coEvery { repository.getAlbumTracks("album-1") } returns Result.success(tracks)
 
-        viewModel = AlbumDetailViewModel(repository, playbackControl, SavedStateHandle())
+        viewModel = AlbumDetailViewModel(repository, playbackControl, downloadRepository, downloadWorkScheduler, SavedStateHandle())
         viewModel.onEvent(AlbumDetailUiEvent.LoadAlbumDetail("album-1"))
         advanceUntilIdle()
 
@@ -112,7 +122,7 @@ class AlbumDetailViewModelTest {
         coEvery { repository.getAlbumDetail("album-1") } returns Result.success(album)
         coEvery { repository.getAlbumTracks("album-1") } returns Result.success(tracks)
 
-        viewModel = AlbumDetailViewModel(repository, playbackControl, SavedStateHandle())
+        viewModel = AlbumDetailViewModel(repository, playbackControl, downloadRepository, downloadWorkScheduler, SavedStateHandle())
         viewModel.onEvent(AlbumDetailUiEvent.LoadAlbumDetail("album-1"))
         advanceUntilIdle()
 
@@ -133,7 +143,7 @@ class AlbumDetailViewModelTest {
         coEvery { playbackControl.playTracks(any(), any()) } returns
             Result.failure(RuntimeException("network down"))
 
-        viewModel = AlbumDetailViewModel(repository, playbackControl, SavedStateHandle())
+        viewModel = AlbumDetailViewModel(repository, playbackControl, downloadRepository, downloadWorkScheduler, SavedStateHandle())
         viewModel.onEvent(AlbumDetailUiEvent.LoadAlbumDetail("album-1"))
         advanceUntilIdle()
 

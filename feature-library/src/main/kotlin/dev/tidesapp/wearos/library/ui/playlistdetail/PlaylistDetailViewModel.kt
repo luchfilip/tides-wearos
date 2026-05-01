@@ -7,6 +7,10 @@ import androidx.lifecycle.viewModelScope
 import dev.tidesapp.wearos.core.domain.model.PlaylistItem
 import dev.tidesapp.wearos.core.domain.model.TrackItem
 import dev.tidesapp.wearos.core.domain.playback.PlaybackControl
+import dev.tidesapp.wearos.download.data.worker.DownloadWorkScheduler
+import dev.tidesapp.wearos.download.domain.model.CollectionType
+import dev.tidesapp.wearos.download.domain.model.DownloadState
+import dev.tidesapp.wearos.download.domain.repository.DownloadRepository
 import dev.tidesapp.wearos.library.domain.repository.PlaylistRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -15,6 +19,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,6 +31,8 @@ sealed interface PlaylistDetailUiState {
     data class Success(
         val playlist: PlaylistItem,
         val tracks: ImmutableList<TrackItem>,
+        val isDownloaded: Boolean = false,
+        val isDownloading: Boolean = false,
     ) : PlaylistDetailUiState
 
     data class Error(val message: String) : PlaylistDetailUiState
@@ -37,6 +44,8 @@ sealed interface PlaylistDetailUiEvent {
     data object PlayAll : PlaylistDetailUiEvent
     data object ShufflePlay : PlaylistDetailUiEvent
     data class PlayTrack(val track: TrackItem) : PlaylistDetailUiEvent
+    data object DownloadPlaylist : PlaylistDetailUiEvent
+    data object RemoveDownload : PlaylistDetailUiEvent
 }
 
 @Immutable
@@ -49,6 +58,8 @@ sealed interface PlaylistDetailUiEffect {
 class PlaylistDetailViewModel @Inject constructor(
     private val playlistRepository: PlaylistRepository,
     private val playbackControl: PlaybackControl,
+    private val downloadRepository: DownloadRepository,
+    private val downloadWorkScheduler: DownloadWorkScheduler,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -65,6 +76,8 @@ class PlaylistDetailViewModel @Inject constructor(
             PlaylistDetailUiEvent.PlayAll -> playFromIndex(0)
             PlaylistDetailUiEvent.ShufflePlay -> shufflePlay()
             is PlaylistDetailUiEvent.PlayTrack -> playTrack(event.track)
+            PlaylistDetailUiEvent.DownloadPlaylist -> downloadPlaylist()
+            PlaylistDetailUiEvent.RemoveDownload -> removeDownload()
         }
     }
 
@@ -85,6 +98,9 @@ class PlaylistDetailViewModel @Inject constructor(
                     playlist = playlist,
                     tracks = tracks.toImmutableList(),
                 )
+                observeDownloadState(playlistId)
+            } else if (loadFromOfflineDatabase(playlistId)) {
+                observeDownloadState(playlistId)
             } else {
                 _uiState.value = PlaylistDetailUiState.Error(
                     playlistResult.exceptionOrNull()?.message
@@ -92,6 +108,84 @@ class PlaylistDetailViewModel @Inject constructor(
                         ?: "Failed to load playlist"
                 )
             }
+        }
+    }
+
+    private suspend fun loadFromOfflineDatabase(playlistId: String): Boolean {
+        val collections = downloadRepository.getDownloadedCollections().first()
+        val collection = collections.find {
+            it.id == playlistId && it.type == CollectionType.PLAYLIST
+        } ?: return false
+
+        val downloadedTracks = downloadRepository
+            .getDownloadedTracksForCollection(playlistId).first()
+        if (downloadedTracks.isEmpty()) return false
+
+        val playlist = PlaylistItem(
+            id = collection.id,
+            title = collection.title,
+            description = null,
+            imageUrl = collection.imageUrl.ifBlank { null },
+            numberOfTracks = collection.trackCount,
+            creator = "",
+        )
+        val tracks = downloadedTracks.map { dt ->
+            TrackItem(
+                id = dt.trackId.toString(),
+                title = dt.title,
+                artistName = dt.artistName,
+                albumTitle = dt.albumTitle,
+                duration = dt.duration,
+                trackNumber = dt.trackNumber,
+                imageUrl = dt.imageUrl.ifBlank { null },
+            )
+        }
+        _uiState.value = PlaylistDetailUiState.Success(
+            playlist = playlist,
+            tracks = tracks.toImmutableList(),
+            isDownloaded = true,
+        )
+        return true
+    }
+
+    private fun observeDownloadState(playlistId: String) {
+        viewModelScope.launch {
+            downloadRepository.getDownloadedCollections().collect { collections ->
+                val current = _uiState.value as? PlaylistDetailUiState.Success ?: return@collect
+                val collection = collections.find {
+                    it.id == playlistId && it.type == CollectionType.PLAYLIST
+                }
+                _uiState.value = current.copy(
+                    isDownloaded = collection?.state == DownloadState.COMPLETED,
+                    isDownloading = collection?.state == DownloadState.PENDING ||
+                        collection?.state == DownloadState.DOWNLOADING,
+                )
+            }
+        }
+    }
+
+    private fun downloadPlaylist() {
+        val state = _uiState.value as? PlaylistDetailUiState.Success ?: return
+        viewModelScope.launch {
+            downloadRepository.queueCollectionDownload(
+                collectionId = state.playlist.id,
+                type = CollectionType.PLAYLIST,
+                title = state.playlist.title,
+                imageUrl = state.playlist.imageUrl.orEmpty(),
+                tracks = state.tracks,
+            )
+            downloadWorkScheduler.enqueueCollectionDownload(
+                state.playlist.id,
+                CollectionType.PLAYLIST,
+            )
+        }
+    }
+
+    private fun removeDownload() {
+        val state = _uiState.value as? PlaylistDetailUiState.Success ?: return
+        viewModelScope.launch {
+            downloadRepository.deleteCollection(state.playlist.id, CollectionType.PLAYLIST)
+            downloadWorkScheduler.cancelCollectionDownload(state.playlist.id)
         }
     }
 

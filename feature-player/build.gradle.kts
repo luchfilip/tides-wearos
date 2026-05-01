@@ -35,6 +35,7 @@ android {
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":feature-download"))
 
     implementation(libs.androidx.core.ktx)
 
@@ -70,6 +71,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.kotlinx.coroutines.android)
+
+    implementation("com.flintsdk:runtime:1.3.0")
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
