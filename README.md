@@ -44,6 +44,9 @@ I personally LOVE running with no smartphone and nothing on me except my watch. 
 
 - Browse your Tidal library (albums, playlists, mixes)
 - Stream music directly on your Wear OS watch
+- Download albums and playlists for offline playback
+- Listen without Wi-Fi or phone connection
+- Manage downloads and storage from the library
 - Now Playing controls with track info and artwork
 - Search for tracks, albums, and playlists
 - Device Code authentication flow
@@ -60,7 +63,7 @@ I personally LOVE running with no smartphone and nothing on me except my watch. 
 
 ## Architecture
 
-The project follows Clean Architecture with MVI pattern, organized into 6 Gradle modules:
+The project follows Clean Architecture with MVI pattern, organized into 7 Gradle modules:
 
 | Module | Description |
 |--------|-------------|
@@ -69,9 +72,10 @@ The project follows Clean Architecture with MVI pattern, organized into 6 Gradle
 | `feature-auth` | Device Code authentication flow |
 | `feature-player` | Audio playback with DASH manifest support |
 | `feature-library` | Library browsing (albums, playlists, mixes) |
+| `feature-download` | Offline downloads, storage management, background sync |
 | `feature-settings` | User settings and preferences |
 
-**Key technologies:** Kotlin 2.3, Jetpack Compose for Wear OS, Hilt, Retrofit, Media3, DataStore
+**Key technologies:** Kotlin 2.3, Jetpack Compose for Wear OS, Hilt, Retrofit, Media3, Room, WorkManager, DataStore
 
 ## Contributing
 
