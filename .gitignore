@@ -15,6 +15,7 @@ core/build/
 feature-auth/build/
 feature-player/build/
 feature-library/build/
+feature-download/build/
 feature-offline/build/
 feature-settings/build/
 
